@@ -93,6 +93,7 @@ test "invoke plain" {
 fn postContentToServer(bot: *Bot, uri: Uri, content: []u8) !Request {
     var header_buf: ServerHeaderBuffer = undefined;
     var request = try bot.client.open(.POST, uri, .{ .server_header_buffer = &header_buf });
+    errdefer request.deinit();
 
     try request.send();
     if (content.len != 0) {
@@ -130,6 +131,7 @@ test "write content to server" {
 // TODO: implement an URI generation function.
 fn makeUriString(bot: *Bot, method: []const u8) !String {
     var buffer = String.init(bot.allocator);
+    errdefer buffer.deinit();
 
     try buffer.appendSlice(bot.api_uri_prefix);
     try buffer.appendSlice(method);
@@ -170,6 +172,7 @@ const ResponseBody = struct {
 
     pub fn toString(self: @This()) !String {
         var str = String.init(self.allocator);
+        errdefer str.deinit();
         try str.appendSlice(self.buf);
         return str;
     }
