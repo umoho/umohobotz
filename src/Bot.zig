@@ -10,6 +10,11 @@ const JsonValue = std.json.Value;
 const ServerHeaderBuffer = [4096]u8;
 const String = std.ArrayList(u8);
 
+pub const methods = @import("Bot/methods.zig");
+pub const objects = @import("Bot/objects.zig");
+
+const MethodName = methods.Name;
+
 allocator: Allocator,
 client: Client,
 api_uri_prefix: []const u8,
@@ -177,7 +182,13 @@ const ResponseBody = struct {
     buf: String,
 
     pub fn toJson(self: @This()) !JsonParsed(JsonValue) {
+        // TODO: read options from the argument.
         return std.json.parseFromSlice(JsonValue, self.allocator, self.buf.items, .{});
+    }
+
+    pub fn toResponseObject(self: @This(), comptime T: type) !JsonParsed(ResponseObject(T)) {
+        // TODO: read options from the argument.
+        return std.json.parseFromSlice(ResponseObject(T), self.allocator, self.buf.items, .{});
     }
 
     pub fn deinit(self: @This()) void {
@@ -185,9 +196,13 @@ const ResponseBody = struct {
     }
 };
 
-pub const MethodName = union(enum) {
-    getUpdates,
-    getMe,
-
-    string_literal: []const u8,
-};
+/// See https://core.telegram.org/bots/api#making-requests.
+fn ResponseObject(comptime T: type) type {
+    return struct {
+        ok: bool,
+        result: ?T = null,
+        description: ?[]u8 = null,
+        error_code: ?i32 = null,
+        parameters: ?objects.ResponseParameters = null,
+    };
+}

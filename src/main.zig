@@ -31,10 +31,15 @@ pub fn main() !void {
 
     std.debug.print("body:\n{s}\n", .{body.buf.items});
 
-    const parsed = try body.toJson();
-    defer parsed.deinit();
+    const parsed_json = try body.toJson();
+    defer parsed_json.deinit();
 
     std.debug.print("body as JSON:\n", .{});
-    parsed.value.dump();
+    parsed_json.value.dump();
     std.debug.print("\n", .{});
+
+    const parsed_object = try body.toResponseObject(Bot.objects.User);
+    defer parsed_object.deinit();
+
+    std.debug.print("body as ResponseObject(User):\n{}\n", .{parsed_object.value});
 }
