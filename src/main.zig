@@ -26,7 +26,7 @@ pub fn main() !void {
     };
     defer bot.deinit();
 
-    const body = try bot.invoke("getUpdates", "", 1024 * 1024);
+    const body = try bot.invoke(.getMe, "", 1024 * 1024);
     defer body.deinit();
 
     std.debug.print("body:\n{s}\n", .{body.buf.items});

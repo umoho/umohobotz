@@ -21,7 +21,12 @@ pub fn deinit(bot: *Bot) void {
     // TODO: any other resource needs to free?
 }
 
-pub fn invoke(bot: *Bot, method: []const u8, content: anytype, comptime buf_len: usize) !ResponseBody {
+pub fn invoke(bot: *Bot, method: MethodName, content: anytype, comptime buf_len: usize) !ResponseBody {
+    const method_name = switch (method) {
+        .string_literal => |str| str,
+        else => @tagName(method),
+    };
+
     var content_str = String.init(bot.allocator);
     defer content_str.deinit();
 
@@ -31,7 +36,7 @@ pub fn invoke(bot: *Bot, method: []const u8, content: anytype, comptime buf_len:
         else => try content_str.appendSlice(@as([]const u8, content)),
     }
 
-    const body = try bot.invokePlain(method, content_str.items, buf_len);
+    const body = try bot.invokePlain(method_name, content_str.items, buf_len);
     errdefer body.deinit();
 
     return .{
@@ -52,7 +57,7 @@ test "invoke" {
     };
     defer bot.deinit();
 
-    const body = try bot.invoke("post", "", 8192);
+    const body = try bot.invoke(.{ .string_literal = "post" }, "", 8192);
     defer body.deinit();
     const paresd = try body.toJson();
     defer paresd.deinit();
@@ -178,4 +183,11 @@ const ResponseBody = struct {
     pub fn deinit(self: @This()) void {
         self.buf.deinit();
     }
+};
+
+pub const MethodName = union(enum) {
+    getUpdates,
+    getMe,
+
+    string_literal: []const u8,
 };
