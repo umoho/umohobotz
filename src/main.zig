@@ -41,5 +41,17 @@ pub fn main() !void {
     const parsed_object = try body.toResponseObject([]Bot.objects.Update);
     defer parsed_object.deinit();
 
-    std.debug.print("body as ResponseObject([]Bot.objects.Update):\n{}\n", .{parsed_object.value});
+    std.debug.print(
+        "body as ResponseObject([]Bot.objects.Update):\n{}\n",
+        .{parsed_object.value},
+    );
+
+    if (parsed_object.value.result) |updates| {
+        for (updates) |update| {
+            std.debug.print("Update ID: {}\n", .{update.update_id});
+            if (update.message) |message| {
+                std.debug.print("Message from chat: {}\n", .{message.chat});
+            }
+        }
+    }
 }
