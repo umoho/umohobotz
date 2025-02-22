@@ -26,7 +26,7 @@ pub fn main() !void {
     };
     defer bot.deinit();
 
-    const body = try bot.invoke(.getMe, "", 1024 * 1024);
+    const body = try bot.invoke(.getUpdates, "", 1024 * 1024);
     defer body.deinit();
 
     std.debug.print("body:\n{s}\n", .{body.buf.items});
@@ -38,8 +38,8 @@ pub fn main() !void {
     parsed_json.value.dump();
     std.debug.print("\n", .{});
 
-    const parsed_object = try body.toResponseObject(Bot.objects.User);
+    const parsed_object = try body.toResponseObject([]Bot.objects.Update);
     defer parsed_object.deinit();
 
-    std.debug.print("body as ResponseObject(User):\n{}\n", .{parsed_object.value});
+    std.debug.print("body as ResponseObject([]Bot.objects.Update):\n{}\n", .{parsed_object.value});
 }
