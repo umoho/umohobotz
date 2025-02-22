@@ -323,7 +323,7 @@ pub const Message = struct {
     /// Optional. True, if the message is a channel post that was automatically forwarded to the connected discussion group
     is_automatic_forward: ?@TypeOf(true) = null,
     /// Optional. For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
-    reply_to_message: ?Message = null,
+    reply_to_message: ?*Message = null,
     /// Optional. Information about the message that is being replied to, which may come from another chat or forum topic
     external_reply: ?ExternalReplyInfo = null,
     /// Optional. For replies that quote part of the original message, the quoted part of the message
@@ -1183,7 +1183,7 @@ pub const GiveawayCompleted = struct {
     /// Optional. Number of undistributed prizes
     unclaimed_prize_count: ?i64 = null,
     /// Optional. Message with the giveaway that was completed, if it wasn't deleted
-    giveaway_message: ?Message = null,
+    giveaway_message: ?*Message = null,
     /// Optional. True, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway.
     is_star_giveaway: ?@TypeOf(true) = null,
 };
