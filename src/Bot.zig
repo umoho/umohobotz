@@ -14,6 +14,7 @@ pub const methods = @import("Bot/methods.zig");
 pub const objects = @import("Bot/objects.zig");
 
 const MethodName = methods.Name;
+const QueryString = @import("query_string.zig").QueryString;
 
 allocator: Allocator,
 client: Client,
@@ -76,6 +77,32 @@ fn invokePlain(bot: *Bot, method: []const u8, content: []u8, comptime buf_len: u
     const uri = try Uri.parse(uri_str.items);
 
     var request = try bot.postContentToServer(uri, content);
+    defer request.deinit();
+
+    var buf: [buf_len]u8 = undefined;
+    const bytes = try request.reader().readAll(&buf);
+    std.log.debug("read {} bytes", .{bytes});
+
+    var body = String.init(bot.allocator);
+    errdefer body.deinit();
+    try body.appendSlice(buf[0..bytes]);
+
+    return body;
+}
+
+pub const invokeOfGet = invokePlainOfGet;
+
+fn invokePlainOfGet(
+    bot: *Bot,
+    method: []const u8,
+    query_string: QueryString,
+    comptime buf_len: usize,
+) !String {
+    const uri_str = try bot.makeUriStringOfGet(method, query_string);
+    defer uri_str.deinit();
+    const uri = try Uri.parse(uri_str.items);
+
+    var request = try bot.sendGetRequest(uri);
     defer request.deinit();
 
     var buf: [buf_len]u8 = undefined;
@@ -154,6 +181,22 @@ fn sendGetRequest(bot: *Bot, uri: Uri) !Request {
     try request.wait();
 
     return request;
+}
+
+fn makeUriStringOfGet(bot: *Bot, method: []const u8, query_string: QueryString) !void {
+    var buffer = String.init(bot.allocator);
+    errdefer buffer.deinit();
+
+    try buffer.appendSlice(bot.api_uri_prefix);
+    try buffer.appendSlice(method);
+
+    const qs = try query_string.toOnwedSlice(bot.allocator);
+    defer bot.allocator.free(qs);
+    try buffer.appendSlice(qs);
+
+    errdefer buffer.clearAndFree();
+
+    return buffer;
 }
 
 /// Concat `api_uri_prefix` and `method`.
