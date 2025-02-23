@@ -2,6 +2,8 @@ const std = @import("std");
 
 const Bot = @import("root.zig").Bot;
 
+const QueryString = @import("query_string.zig").QueryString;
+
 pub fn main() !void {
     // make allocator.
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -32,8 +34,23 @@ pub fn main() !void {
 
     var max_update_id: ?i64 = null;
     while (true) {
+        // make GET query string.
+        var query_string = QueryString.init(bot.allocator);
+        defer query_string.deinit();
+
+        if (max_update_id) |id| {
+            const next_id = id + 1;
+
+            // i64 to string.
+            var offset_value_str = std.ArrayList(u8).init(bot.allocator);
+            defer offset_value_str.deinit();
+            try std.fmt.format(offset_value_str.writer(), "{}", .{next_id});
+
+            try query_string.put("offset", offset_value_str.items);
+        }
+
         // invoke API.
-        const body = try bot.invoke(.getUpdates, "", 1024 * 1024);
+        const body = try bot.invokeOfGet("getUpdates", &query_string, 1024 * 1024);
         defer body.deinit();
 
         if (body.toResponseObject([]Bot.objects.Update)) |parsed_object| {
