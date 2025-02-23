@@ -30,59 +30,61 @@ pub fn main() !void {
     };
     defer bot.deinit();
 
-    // invoke API.
-    const body = try bot.invoke(.getUpdates, "", 1024 * 1024);
-    defer body.deinit();
+    while (true) {
+        // invoke API.
+        const body = try bot.invoke(.getUpdates, "", 1024 * 1024);
+        defer body.deinit();
 
-    if (body.toResponseObject([]Bot.objects.Update)) |parsed_object| {
-        // print as object.
-        defer parsed_object.deinit();
-        const object = parsed_object.value;
-        std.debug.print("object:\n{}\n", .{object});
+        if (body.toResponseObject([]Bot.objects.Update)) |parsed_object| {
+            // print as object.
+            defer parsed_object.deinit();
+            const object = parsed_object.value;
+            std.debug.print("object:\n{}\n", .{object});
 
-        // print error.
-        if (!object.ok) {
-            std.debug.print("server response an error:\n", .{});
-            if (object.description) |description| {
-                std.debug.print("  description: {s}\n", .{description});
-            }
-            if (object.error_code) |error_code| {
-                std.debug.print("  error_code: {}\n", .{error_code});
-            }
-            if (object.parameters) |parameters| {
-                std.debug.print("  parameters:\n", .{});
-                if (parameters.migrate_to_chat_id) |migrate_to_chat_id| {
-                    std.debug.print("    migrate_to_chat_id: {}\n", .{migrate_to_chat_id});
+            // print error.
+            if (!object.ok) {
+                std.debug.print("server response an error:\n", .{});
+                if (object.description) |description| {
+                    std.debug.print("  description: {s}\n", .{description});
                 }
-                if (parameters.retry_after) |retry_after| {
-                    std.debug.print("    retry_after: {}\n", .{retry_after});
+                if (object.error_code) |error_code| {
+                    std.debug.print("  error_code: {}\n", .{error_code});
                 }
-            }
-        }
-
-        if (object.result) |updates| {
-            std.debug.print("I got {} update(s)\n", .{updates.len});
-            // find max update ID.
-            var max_update_id: i64 = 0;
-            for (updates) |update| {
-                if (update.update_id > max_update_id) {
-                    max_update_id = update.update_id;
+                if (object.parameters) |parameters| {
+                    std.debug.print("  parameters:\n", .{});
+                    if (parameters.migrate_to_chat_id) |migrate_to_chat_id| {
+                        std.debug.print("    migrate_to_chat_id: {}\n", .{migrate_to_chat_id});
+                    }
+                    if (parameters.retry_after) |retry_after| {
+                        std.debug.print("    retry_after: {}\n", .{retry_after});
+                    }
                 }
             }
-            std.debug.print("the max update ID is {}\n", .{max_update_id});
-        }
-    } else |parse_object_err| {
-        std.debug.print("failed to parse object: {}\n", .{parse_object_err});
-        if (body.toJson()) |parsed_json| {
-            // print as json.
-            defer parsed_json.deinit();
-            std.debug.print("JSON:\n", .{});
-            parsed_json.value.dump();
-            std.debug.print("\n", .{});
-        } else |parse_json_err| {
-            std.debug.print("failed to parse JSON: {}\n", .{parse_json_err});
-            // print as plain.
-            std.debug.print("plain:\n{s}\n", .{body.buf.items});
+
+            if (object.result) |updates| {
+                std.debug.print("I got {} update(s)\n", .{updates.len});
+                // find max update ID.
+                var max_update_id: i64 = 0;
+                for (updates) |update| {
+                    if (update.update_id > max_update_id) {
+                        max_update_id = update.update_id;
+                    }
+                }
+                std.debug.print("the max update ID is {}\n", .{max_update_id});
+            }
+        } else |parse_object_err| {
+            std.debug.print("failed to parse object: {}\n", .{parse_object_err});
+            if (body.toJson()) |parsed_json| {
+                // print as json.
+                defer parsed_json.deinit();
+                std.debug.print("JSON:\n", .{});
+                parsed_json.value.dump();
+                std.debug.print("\n", .{});
+            } else |parse_json_err| {
+                std.debug.print("failed to parse JSON: {}\n", .{parse_json_err});
+                // print as plain.
+                std.debug.print("plain:\n{s}\n", .{body.buf.items});
+            }
         }
     }
 }
