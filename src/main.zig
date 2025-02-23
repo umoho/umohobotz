@@ -60,6 +60,39 @@ pub fn main() !void {
         // print as object.
         const parsed_object = try body.toResponseObject([]Bot.objects.Update);
         defer parsed_object.deinit();
-        std.debug.print("object:\n{}\n", .{parsed_object.value});
+        const object = parsed_object.value;
+        std.debug.print("object:\n{}\n", .{object});
+
+        // print error.
+        if (!object.ok) {
+            std.debug.print("server response an error:\n", .{});
+            if (object.description) |description| {
+                std.debug.print("  description: {s}\n", .{description});
+            }
+            if (object.error_code) |error_code| {
+                std.debug.print("  error_code: {}\n", .{error_code});
+            }
+            if (object.parameters) |parameters| {
+                std.debug.print("  parameters:\n", .{});
+                if (parameters.migrate_to_chat_id) |migrate_to_chat_id| {
+                    std.debug.print("    migrate_to_chat_id: {}\n", .{migrate_to_chat_id});
+                }
+                if (parameters.retry_after) |retry_after| {
+                    std.debug.print("    retry_after: {}\n", .{retry_after});
+                }
+            }
+        }
+
+        if (object.result) |updates| {
+            std.debug.print("I got {} update(s)\n", .{updates.len});
+            // find max update ID.
+            var max_update_id: i64 = 0;
+            for (updates) |update| {
+                if (update.update_id > max_update_id) {
+                    max_update_id = update.update_id;
+                }
+            }
+            std.debug.print("the max update ID is {}\n", .{max_update_id});
+        }
     }
 }
