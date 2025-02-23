@@ -30,6 +30,7 @@ pub fn main() !void {
     };
     defer bot.deinit();
 
+    var max_update_id: ?i64 = null;
     while (true) {
         // invoke API.
         const body = try bot.invoke(.getUpdates, "", 1024 * 1024);
@@ -64,13 +65,12 @@ pub fn main() !void {
             if (object.result) |updates| {
                 std.debug.print("I got {} update(s)\n", .{updates.len});
                 // find max update ID.
-                var max_update_id: i64 = 0;
                 for (updates) |update| {
-                    if (update.update_id > max_update_id) {
+                    if ((max_update_id == null) or (update.update_id > max_update_id.?)) {
                         max_update_id = update.update_id;
                     }
                 }
-                std.debug.print("the max update ID is {}\n", .{max_update_id});
+                std.debug.print("the max update ID is {?}\n", .{max_update_id});
             }
         } else |parse_object_err| {
             std.debug.print("failed to parse object: {}\n", .{parse_object_err});
