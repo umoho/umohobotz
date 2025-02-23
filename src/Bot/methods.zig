@@ -15,26 +15,26 @@ pub const Name = union(enum) {
 
 /// See https://core.telegram.org/bots/api#getupdates.
 pub const GetUpdates = struct {
-    offset: ?i64,
-    limit: ?i64,
-    timeout: ?i64,
-    allowed_updates: ?[][]u8,
+    offset: ?i64 = null,
+    limit: ?i64 = null,
+    timeout: ?i64 = null,
+    allowed_updates: ?[][]u8 = null,
 };
 
 /// See https://core.telegram.org/bots/api#sendmessage.
 pub const SendMessage = struct {
-    business_connection_id: ?[]u8,
+    business_connection_id: ?[]u8 = null,
     chat_id: union { integer: i64, string: []u8 },
-    message_thread_id: ?i64,
+    message_thread_id: ?i64 = null,
     text: []u8,
-    parse_mode: ?[]u8,
-    entities: ?[]void, // TODO: actual type 'MessageEntity'.
-    link_preview_options: ?void, // TODO: actual type 'LinkPreviewOptions'.
-    disable_notification: ?bool,
-    protect_connect: ?bool,
-    allow_paid_broadcast: ?bool,
-    message_effect_id: ?[]u8,
-    reply_parameters: ?[]void, // TODO: actual type 'ReplyParameters'.
+    parse_mode: ?[]u8 = null,
+    entities: ?[]void = null, // TODO: actual type 'MessageEntity'.
+    link_preview_options: ?void = null, // TODO: actual type 'LinkPreviewOptions'.
+    disable_notification: ?bool = null,
+    protect_connect: ?bool = null,
+    allow_paid_broadcast: ?bool = null,
+    message_effect_id: ?[]u8 = null,
+    reply_parameters: ?[]void = null, // TODO: actual type 'ReplyParameters'.
     reply_markup: ?union {
         inline_keyboard_markup: void,
         reply_keyboard_markup: void,
