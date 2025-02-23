@@ -144,6 +144,18 @@ test "write content to server" {
     std.debug.print("status: {}\n", .{request.response.status});
 }
 
+fn sendGetRequest(bot: *Bot, uri: Uri) !Request {
+    var header_buf: ServerHeaderBuffer = undefined;
+    var request = try bot.client.open(.GET, uri, .{ .server_header_buffer = &header_buf });
+    errdefer request.deinit();
+
+    try request.send();
+    try request.finish();
+    try request.wait();
+
+    return request;
+}
+
 /// Concat `api_uri_prefix` and `method`.
 // TODO: implement an URI generation function.
 fn makeUriString(bot: *Bot, method: []const u8) !String {
