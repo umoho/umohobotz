@@ -19,7 +19,7 @@ pub const QueryString = struct {
         try self.map.put(key, value);
     }
 
-    pub fn toString(self: *@This(), allocator: Allocator) ![]u8 {
+    pub fn toOnwedSlice(self: *@This(), allocator: Allocator) ![]u8 {
         var str = std.ArrayList(u8).init(allocator);
         defer str.deinit();
 
@@ -48,7 +48,7 @@ pub const QueryString = struct {
     }
 };
 
-test "toString" {
+test "toOwnedSlice" {
     const test_allocator = std.testing.allocator;
 
     var query_string = QueryString.init(test_allocator);
@@ -57,7 +57,7 @@ test "toString" {
     try query_string.put("hello", "你好");
     try query_string.put("world", "世界");
 
-    const str = try query_string.toString(test_allocator);
+    const str = try query_string.toOnwedSlice(test_allocator);
     defer test_allocator.free(str);
 
     try std.testing.expect(std.mem.eql(
