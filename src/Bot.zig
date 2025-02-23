@@ -90,12 +90,25 @@ fn invokePlain(bot: *Bot, method: []const u8, content: []u8, comptime buf_len: u
     return body;
 }
 
-pub const invokeOfGet = invokePlainOfGet;
+pub fn invokeOfGet(
+    bot: *Bot,
+    method: []const u8,
+    query_string: *QueryString,
+    comptime buf_len: usize,
+) !ResponseBody {
+    const body = try bot.invokePlainOfGet(method, query_string, buf_len);
+    errdefer body.deinit();
+
+    return .{
+        .allocator = bot.allocator,
+        .buf = body,
+    };
+}
 
 fn invokePlainOfGet(
     bot: *Bot,
     method: []const u8,
-    query_string: QueryString,
+    query_string: *QueryString,
     comptime buf_len: usize,
 ) !String {
     const uri_str = try bot.makeUriStringOfGet(method, query_string);
@@ -183,7 +196,7 @@ fn sendGetRequest(bot: *Bot, uri: Uri) !Request {
     return request;
 }
 
-fn makeUriStringOfGet(bot: *Bot, method: []const u8, query_string: QueryString) !void {
+fn makeUriStringOfGet(bot: *Bot, method: []const u8, query_string: *QueryString) !String {
     var buffer = String.init(bot.allocator);
     errdefer buffer.deinit();
 
