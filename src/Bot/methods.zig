@@ -15,17 +15,17 @@ pub const Name = union(enum) {
 
 /// See https://core.telegram.org/bots/api#getupdates.
 pub const GetUpdates = struct {
-    offset: ?i32,
-    limit: ?i32,
-    timeout: ?i32,
+    offset: ?i64,
+    limit: ?i64,
+    timeout: ?i64,
     allowed_updates: ?[][]u8,
 };
 
 /// See https://core.telegram.org/bots/api#sendmessage.
 pub const SendMessage = struct {
     business_connection_id: ?[]u8,
-    chat_id: union { integer: i32, string: []u8 },
-    message_thread_id: ?i32,
+    chat_id: union { integer: i64, string: []u8 },
+    message_thread_id: ?i64,
     text: []u8,
     parse_mode: ?[]u8,
     entities: ?[]void, // TODO: actual type 'MessageEntity'.
@@ -40,5 +40,5 @@ pub const SendMessage = struct {
         reply_keyboard_markup: void,
         reply_keyboard_remove: void,
         force_reply: void,
-    },
+    } = null,
 };
