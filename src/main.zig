@@ -38,12 +38,16 @@ pub fn main() !void {
         var query_string = QueryString.init(bot.allocator);
         defer query_string.deinit();
 
+        var offset_value_str = std.ArrayList(u8).init(bot.allocator);
+        defer offset_value_str.deinit();
+
         if (max_update_id) |id| {
             const next_id = id + 1;
 
             // i64 to string.
-            var offset_value_str = std.ArrayList(u8).init(bot.allocator);
-            defer offset_value_str.deinit();
+            // NOTE: we can't defer here.
+            // var offset_value_str = std.ArrayList(u8).init(bot.allocator);
+            // defer offset_value_str.deinit();
             try std.fmt.format(offset_value_str.writer(), "{}", .{next_id});
 
             try query_string.put("offset", offset_value_str.items);
