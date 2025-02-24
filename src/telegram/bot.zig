@@ -52,7 +52,7 @@ pub const Bot = struct {
     }
 
     /// Get updates from the Telegram Bot API in a loop.
-    pub fn getUpdatesLoop(self: *Bot) void {
+    pub fn getUpdatesLoop(self: *Bot) !void {
         var max_update_id: ?i64 = null;
         while (true) {
             const next: methods.GetUpdates = if (max_update_id) |id|
@@ -63,12 +63,12 @@ pub const Bot = struct {
             const response = try self.getUpdates(next);
             defer response.deinit();
 
-            if (response.toResponseObject([]Bot.objects.Update)) |parsed_object| {
+            if (response.toResponseObject([]objects.Update, .{})) |parsed_object| {
                 // print as object.
                 defer parsed_object.deinit();
                 const object = parsed_object.value;
 
-                printObjectIfError([]Bot.objects.Update, object);
+                printObjectIfError([]objects.Update, object);
 
                 if (object.result) |updates| {
                     std.debug.print("I got {} update(s)\n", .{updates.len});
@@ -81,7 +81,7 @@ pub const Bot = struct {
                 }
             } else |parse_object_err| {
                 std.debug.print("failed to parse object: {}\n", .{parse_object_err});
-                if (response.toJson()) |parsed_json| {
+                if (response.toJson(.{})) |parsed_json| {
                     // print as json.
                     defer parsed_json.deinit();
                     std.debug.print("JSON:\n", .{});
@@ -90,7 +90,7 @@ pub const Bot = struct {
                 } else |parse_json_err| {
                     std.debug.print("failed to parse JSON: {}\n", .{parse_json_err});
                     // print as plain.
-                    std.debug.print("plain:\n{s}\n", .{response.buf.items});
+                    std.debug.print("plain:\n{s}\n", .{response.buf});
                 }
             }
         }

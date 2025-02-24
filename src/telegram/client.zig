@@ -53,7 +53,7 @@ pub const Client = struct {
         const uri = try Uri.parse(uri_str);
 
         // send request.
-        var request = try self.requestGet(uri);
+        var request = try requestGet(&self.client, uri);
         defer request.deinit();
 
         // read response.
@@ -97,7 +97,7 @@ pub const Client = struct {
 ///
 /// - Remember to free the returned slice using my `deinit`.
 /// - It's be created by `Client`.
-const Response = struct {
+pub const Response = struct {
     allocator: Allocator,
     buf: []u8,
 
@@ -111,7 +111,7 @@ const Response = struct {
         self: @This(),
         options: ParseOptions,
     ) !Parsed(Value) {
-        return parseFromSlice(Value, self.allocator, self.buf.items, options);
+        return parseFromSlice(Value, self.allocator, self.buf, options);
     }
 
     /// Parse the response to `Object`.
@@ -120,7 +120,7 @@ const Response = struct {
         comptime T: type,
         options: ParseOptions,
     ) !Parsed(Object(T)) {
-        return parseFromSlice(Object(T), self.allocator, self.buf.items, options);
+        return parseFromSlice(Object(T), self.allocator, self.buf, options);
     }
 
     /// Deinitialize the response.
