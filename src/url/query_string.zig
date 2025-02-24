@@ -10,6 +10,69 @@ pub fn Pair(comptime K: type, comptime V: type) type {
     };
 }
 
+/// Build pairs from a struct.
+///
+/// Note:
+///
+/// - Remember to free the returned pairs.
+pub fn pairsFromStruct(
+    allocator: Allocator,
+    comptime T: type,
+    value: T,
+) ![]Pair([]const u8, []const u8) {
+    const fields = std.meta.fields(T);
+    const len = fields.len;
+    var pairs = try allocator.alloc(Pair([]const u8, []const u8), len);
+
+    inline for (fields, 0..) |field, i| {
+        const field_value = @field(value, field.name);
+        const field_type = @TypeOf(field_value);
+
+        pairs[i] = switch (field_type) {
+            []const u8 => .{
+                .key = field.name,
+                .value = field_value,
+            },
+            []u8 => .{
+                .key = field.name,
+                .value = field_value,
+            },
+            comptime_int => .{
+                .key = field.name,
+                .value = try std.fmt.allocPrint(allocator, "{d}", .{field_value}),
+            },
+            else => .{
+                .key = field.name,
+                .value = try std.fmt.allocPrint(allocator, "{any}", .{field_value}),
+            },
+        };
+    }
+
+    return pairs;
+}
+
+test pairsFromStruct {
+    const test_allocator = std.testing.allocator;
+
+    const TestStruct = struct {
+        foo: []const u8,
+        hello: []const u8,
+    };
+    const test_struct = TestStruct{
+        .foo = "bar",
+        .hello = "world",
+    };
+
+    const pairs = try pairsFromStruct(test_allocator, TestStruct, test_struct);
+    defer test_allocator.free(pairs);
+
+    try std.testing.expectEqual(pairs.len, 2);
+    try std.testing.expectEqualStrings("foo", pairs[0].key);
+    try std.testing.expectEqualStrings("bar", pairs[0].value);
+    try std.testing.expectEqualStrings("hello", pairs[1].key);
+    try std.testing.expectEqualStrings("world", pairs[1].value);
+}
+
 /// Build query string from pairs.
 ///
 /// Note:
