@@ -47,8 +47,15 @@ pub const Client = struct {
     /// - Remember to free the returned slice using `Response.deinit`.
     pub fn invokeGet(self: *Client, method: anytype) !Response {
         // build URI.
+        // the method name includes '.',
+        // we should take the last camelCase name.
         const method_name = @typeName(@TypeOf(method));
-        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, method_name, method);
+        const last_dot_index = std.mem.lastIndexOf(u8, method_name, ".");
+        const last_name = if (last_dot_index) |index|
+            method_name[index + 1 ..]
+        else
+            method_name;
+        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, method);
         defer self.allocator.free(uri_str);
         const uri = try Uri.parse(uri_str);
 
