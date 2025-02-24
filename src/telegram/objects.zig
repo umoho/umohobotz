@@ -4,6 +4,20 @@ const Allocator = std.mem.Allocator;
 const Value = std.json.Value;
 const ParseOptions = std.json.ParseOptions;
 
+/// See https://core.telegram.org/bots/api#making-requests.
+pub fn Object(comptime T: type) type {
+    // TODO: move `objects.zig` to `telegram` module.
+    const objects = @import("../Bot/objects.zig");
+
+    return struct {
+        ok: bool,
+        result: ?T = null,
+        description: ?[]u8 = null,
+        error_code: ?i32 = null,
+        parameters: ?objects.ResponseParameters = null,
+    };
+}
+
 pub const integer_or_string = union(enum) {
     integer: i64,
     string: []const u8,

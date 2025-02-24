@@ -8,6 +8,8 @@ const StdClient = std.http.Client;
 const query_string = @import("../url/query_string.zig");
 const url = @import("../url/url.zig");
 
+const Object = @import("objects.zig").Object;
+
 const server_header_buf_size = 4096;
 const response_buf_size = 1024 * 1024;
 
@@ -125,20 +127,6 @@ const Response = struct {
         self.allocator.free(self.buf);
     }
 };
-
-/// See https://core.telegram.org/bots/api#making-requests.
-fn Object(comptime T: type) type {
-    // TODO: move `objects.zig` to `telegram` module.
-    const objects = @import("../Bot/objects.zig");
-
-    return struct {
-        ok: bool,
-        result: ?T = null,
-        description: ?[]u8 = null,
-        error_code: ?i32 = null,
-        parameters: ?objects.ResponseParameters = null,
-    };
-}
 
 /// Build the URL prefix with the token.
 ///
