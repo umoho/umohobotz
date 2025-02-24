@@ -6,15 +6,12 @@ const ParseOptions = std.json.ParseOptions;
 
 /// See https://core.telegram.org/bots/api#making-requests.
 pub fn Object(comptime T: type) type {
-    // TODO: move `objects.zig` to `telegram` module.
-    const objects = @import("../Bot/objects.zig");
-
     return struct {
         ok: bool,
         result: ?T = null,
-        description: ?[]u8 = null,
+        description: ?[]const u8 = null,
         error_code: ?i32 = null,
-        parameters: ?objects.ResponseParameters = null,
+        parameters: ?ResponseParameters = null,
     };
 }
 
@@ -149,23 +146,23 @@ pub const Update = struct {
 /// Describes the current status of a webhook.
 pub const WebhookInfo = struct {
     /// Webhook URL, may be empty if webhook is not set up
-    url: []u8,
+    url: []const u8,
     /// True, if a custom certificate was provided for webhook certificate checks
     has_custom_certificate: bool,
     /// Number of updates awaiting delivery
     pending_update_count: i64,
     /// Optional. Currently used webhook IP address
-    ip_address: ?[]u8 = null,
+    ip_address: ?[]const u8 = null,
     /// Optional. Unix time for the most recent error that happened when trying to deliver an update via webhook
     last_error_date: ?i64 = null,
     /// Optional. Error message in human-readable format for the most recent error that happened when trying to deliver an update via webhook
-    last_error_message: ?[]u8 = null,
+    last_error_message: ?[]const u8 = null,
     /// Optional. Unix time of the most recent error that happened when trying to synchronize available updates with Telegram datacenters
     last_synchronization_error_date: ?i64 = null,
     /// Optional. The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
     max_connections: ?i64 = null,
     /// Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member
-    allowed_updates: ?[][]u8 = null,
+    allowed_updates: ?[][]const u8 = null,
 };
 
 /// This object represents a Telegram user or bot.
@@ -175,13 +172,13 @@ pub const User = struct {
     /// True, if this user is a bot
     is_bot: bool,
     /// User's or bot's first name
-    first_name: []u8,
+    first_name: []const u8,
     /// Optional. User's or bot's last name
-    last_name: ?[]u8 = null,
+    last_name: ?[]const u8 = null,
     /// Optional. User's or bot's username
-    username: ?[]u8 = null,
+    username: ?[]const u8 = null,
     /// Optional. IETF language tag of the user's language
-    language_code: ?[]u8 = null,
+    language_code: ?[]const u8 = null,
     /// Optional. True, if this user is a Telegram Premium user
     is_premium: ?@TypeOf(true) = null,
     /// Optional. True, if this user added the bot to the attachment menu
@@ -203,15 +200,15 @@ pub const Chat = struct {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     id: i64,
     /// Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
-    type: []u8,
+    type: []const u8,
     /// Optional. Title, for supergroups, channels and group chats
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
     /// Optional. Username, for private chats, supergroups and channels if available
-    username: ?[]u8 = null,
+    username: ?[]const u8 = null,
     /// Optional. First name of the other party in a private chat
-    first_name: ?[]u8 = null,
+    first_name: ?[]const u8 = null,
     /// Optional. Last name of the other party in a private chat
-    last_name: ?[]u8 = null,
+    last_name: ?[]const u8 = null,
     /// Optional. True, if the supergroup chat is a forum (has topics enabled)
     is_forum: ?@TypeOf(true) = null,
 };
@@ -221,15 +218,15 @@ pub const ChatFullInfo = struct {
     /// Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
     id: i64,
     /// Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
-    type: []u8,
+    type: []const u8,
     /// Optional. Title, for supergroups, channels and group chats
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
     /// Optional. Username, for private chats, supergroups and channels if available
-    username: ?[]u8 = null,
+    username: ?[]const u8 = null,
     /// Optional. First name of the other party in a private chat
-    first_name: ?[]u8 = null,
+    first_name: ?[]const u8 = null,
     /// Optional. Last name of the other party in a private chat
-    last_name: ?[]u8 = null,
+    last_name: ?[]const u8 = null,
     /// Optional. True, if the supergroup chat is a forum (has topics enabled)
     is_forum: ?@TypeOf(true) = null,
     /// Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
@@ -239,7 +236,7 @@ pub const ChatFullInfo = struct {
     /// Optional. Chat photo
     photo: ?ChatPhoto = null,
     /// Optional. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
-    active_usernames: ?[][]u8 = null,
+    active_usernames: ?[][]const u8 = null,
     /// Optional. For private chats, the date of birth of the user
     birthdate: ?Birthdate = null,
     /// Optional. For private chats with business accounts, the intro of the business
@@ -253,17 +250,17 @@ pub const ChatFullInfo = struct {
     /// Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
     available_reactions: ?[]ReactionType = null,
     /// Optional. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
-    background_custom_emoji_id: ?[]u8 = null,
+    background_custom_emoji_id: ?[]const u8 = null,
     /// Optional. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
     profile_accent_color_id: ?i64 = null,
     /// Optional. Custom emoji identifier of the emoji chosen by the chat for its profile background
-    profile_background_custom_emoji_id: ?[]u8 = null,
+    profile_background_custom_emoji_id: ?[]const u8 = null,
     /// Optional. Custom emoji identifier of the emoji status of the chat or the other party in a private chat
-    emoji_status_custom_emoji_id: ?[]u8 = null,
+    emoji_status_custom_emoji_id: ?[]const u8 = null,
     /// Optional. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any
     emoji_status_expiration_date: ?i64 = null,
     /// Optional. Bio of the other party in a private chat
-    bio: ?[]u8 = null,
+    bio: ?[]const u8 = null,
     /// Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user
     has_private_forwards: ?@TypeOf(true) = null,
     /// Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat
@@ -273,9 +270,9 @@ pub const ChatFullInfo = struct {
     /// Optional. True, if all users directly joining the supergroup without using an invite link need to be approved by supergroup administrators
     join_by_request: ?@TypeOf(true) = null,
     /// Optional. Description, for groups, supergroups and channel chats
-    description: ?[]u8 = null,
+    description: ?[]const u8 = null,
     /// Optional. Primary invite link, for groups, supergroups and channel chats
-    invite_link: ?[]u8 = null,
+    invite_link: ?[]const u8 = null,
     /// Optional. The most recent pinned message (by sending date)
     pinned_message: ?Message = null,
     /// Optional. Default chat member permissions, for groups and supergroups
@@ -299,11 +296,11 @@ pub const ChatFullInfo = struct {
     /// Optional. True, if new chat members will have access to old messages; available only to chat administrators
     has_visible_history: ?@TypeOf(true) = null,
     /// Optional. For supergroups, name of the group sticker set
-    sticker_set_name: ?[]u8 = null,
+    sticker_set_name: ?[]const u8 = null,
     /// Optional. True, if the bot can change the group sticker set
     can_set_sticker_set: ?@TypeOf(true) = null,
     /// Optional. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
-    custom_emoji_sticker_set_name: ?[]u8 = null,
+    custom_emoji_sticker_set_name: ?[]const u8 = null,
     /// Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
     linked_chat_id: ?i64 = null,
     /// Optional. For supergroups, the location to which the supergroup is connected
@@ -327,7 +324,7 @@ pub const Message = struct {
     /// Date the message was sent in Unix time. It is always a positive number, representing a valid date.
     date: i64,
     /// Optional. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
-    business_connection_id: ?[]u8 = null,
+    business_connection_id: ?[]const u8 = null,
     /// Chat the message belongs to
     chat: Chat,
     /// Optional. Information about the original message for forwarded messages
@@ -353,17 +350,17 @@ pub const Message = struct {
     /// Optional. True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
     is_from_offline: ?@TypeOf(true) = null,
     /// Optional. The unique identifier of a media message group this message belongs to
-    media_group_id: ?[]u8 = null,
+    media_group_id: ?[]const u8 = null,
     /// Optional. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
-    author_signature: ?[]u8 = null,
+    author_signature: ?[]const u8 = null,
     /// Optional. For text messages, the actual UTF-8 text of the message
-    text: ?[]u8 = null,
+    text: ?[]const u8 = null,
     /// Optional. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
     entities: ?[]MessageEntity = null,
     /// Optional. Options used for link preview generation for the message, if it is a text message and link preview options were changed
     link_preview_options: ?LinkPreviewOptions = null,
     /// Optional. Unique identifier of the message effect added to the message
-    effect_id: ?[]u8 = null,
+    effect_id: ?[]const u8 = null,
     /// Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
     animation: ?Animation = null,
     /// Optional. Message is an audio file, information about the file
@@ -385,7 +382,7 @@ pub const Message = struct {
     /// Optional. Message is a voice message, information about the file
     voice: ?Voice = null,
     /// Optional. Caption for the animation, audio, document, paid media, photo, video or voice
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
     caption_entities: ?[]MessageEntity = null,
     /// Optional. True, if the caption must be shown above the message media
@@ -409,7 +406,7 @@ pub const Message = struct {
     /// Optional. A member was removed from the group, information about them (this member may be the bot itself)
     left_chat_member: ?User = null,
     /// Optional. A chat title was changed to this value
-    new_chat_title: ?[]u8 = null,
+    new_chat_title: ?[]const u8 = null,
     /// Optional. A chat photo was change to this value
     new_chat_photo: ?[]PhotoSize = null,
     /// Optional. Service message: the chat photo was deleted
@@ -439,7 +436,7 @@ pub const Message = struct {
     /// Optional. Service message: a chat was shared with the bot
     chat_shared: ?ChatShared = null,
     /// Optional. The domain name of the website on which the user has logged in. More about Telegram Login »
-    connected_website: ?[]u8 = null,
+    connected_website: ?[]const u8 = null,
     /// Optional. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
     write_access_allowed: ?WriteAccessAllowed = null,
     /// Optional. Telegram Passport data
@@ -503,25 +500,25 @@ pub const InaccessibleMessage = struct {
 /// This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 pub const MessageEntity = struct {
     /// Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
-    type: []u8,
+    type: []const u8,
     /// Offset in UTF-16 code units to the start of the entity
     offset: i64,
     /// Length of the entity in UTF-16 code units
     length: i64,
     /// Optional. For “text_link” only, URL that will be opened after user taps on the text
-    url: ?[]u8 = null,
+    url: ?[]const u8 = null,
     /// Optional. For “text_mention” only, the mentioned user
     user: ?User = null,
     /// Optional. For “pre” only, the programming language of the entity text
-    language: ?[]u8 = null,
+    language: ?[]const u8 = null,
     /// Optional. For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker
-    custom_emoji_id: ?[]u8 = null,
+    custom_emoji_id: ?[]const u8 = null,
 };
 
 /// This object contains information about the quoted part of a message that is replied to by the given message.
 pub const TextQuote = struct {
     /// Text of the quoted part of a message that is replied to by the given message
-    text: []u8,
+    text: []const u8,
     /// Optional. Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes.
     entities: ?[]MessageEntity = null,
     /// Approximate quote position in the original message in UTF-16 code units as specified by the sender
@@ -591,9 +588,9 @@ pub const ReplyParameters = struct {
     /// Optional. Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
     allow_sending_without_reply: ?bool = null,
     /// Optional. Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
-    quote: ?[]u8 = null,
+    quote: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the quote. See formatting options for more details.
-    quote_parse_mode: ?[]u8 = null,
+    quote_parse_mode: ?[]const u8 = null,
     /// Optional. A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode.
     quote_entities: ?[]MessageEntity = null,
     /// Optional. Position of the quote in the original message in UTF-16 code units
@@ -603,7 +600,7 @@ pub const ReplyParameters = struct {
 /// The message was originally sent by a known user.
 pub const MessageOriginUser = struct {
     /// Type of the message origin, always “user”
-    type: []u8,
+    type: []const u8,
     /// Date the message was sent originally in Unix time
     date: i64,
     /// User that sent the message originally
@@ -613,29 +610,29 @@ pub const MessageOriginUser = struct {
 /// The message was originally sent by an unknown user.
 pub const MessageOriginHiddenUser = struct {
     /// Type of the message origin, always “hidden_user”
-    type: []u8,
+    type: []const u8,
     /// Date the message was sent originally in Unix time
     date: i64,
     /// Name of the user that sent the message originally
-    sender_user_name: []u8,
+    sender_user_name: []const u8,
 };
 
 /// The message was originally sent on behalf of a chat to a group chat.
 pub const MessageOriginChat = struct {
     /// Type of the message origin, always “chat”
-    type: []u8,
+    type: []const u8,
     /// Date the message was sent originally in Unix time
     date: i64,
     /// Chat that sent the message originally
     sender_chat: Chat,
     /// Optional. For messages originally sent by an anonymous chat administrator, original message author signature
-    author_signature: ?[]u8 = null,
+    author_signature: ?[]const u8 = null,
 };
 
 /// The message was originally sent to a channel chat.
 pub const MessageOriginChannel = struct {
     /// Type of the message origin, always “channel”
-    type: []u8,
+    type: []const u8,
     /// Date the message was sent originally in Unix time
     date: i64,
     /// Channel chat to which the message was originally sent
@@ -643,15 +640,15 @@ pub const MessageOriginChannel = struct {
     /// Unique message identifier inside the chat
     message_id: i64,
     /// Optional. Signature of the original post author
-    author_signature: ?[]u8 = null,
+    author_signature: ?[]const u8 = null,
 };
 
 /// This object represents one size of a photo or a file / sticker thumbnail.
 pub const PhotoSize = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Photo width
     width: i64,
     /// Photo height
@@ -663,9 +660,9 @@ pub const PhotoSize = struct {
 /// This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
 pub const Animation = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Video width as defined by the sender
     width: i64,
     /// Video height as defined by the sender
@@ -675,9 +672,9 @@ pub const Animation = struct {
     /// Optional. Animation thumbnail as defined by the sender
     thumbnail: ?PhotoSize = null,
     /// Optional. Original animation filename as defined by the sender
-    file_name: ?[]u8 = null,
+    file_name: ?[]const u8 = null,
     /// Optional. MIME type of the file as defined by the sender
-    mime_type: ?[]u8 = null,
+    mime_type: ?[]const u8 = null,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
 };
@@ -685,19 +682,19 @@ pub const Animation = struct {
 /// This object represents an audio file to be treated as music by the Telegram clients.
 pub const Audio = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Duration of the audio in seconds as defined by the sender
     duration: i64,
     /// Optional. Performer of the audio as defined by the sender or by audio tags
-    performer: ?[]u8 = null,
+    performer: ?[]const u8 = null,
     /// Optional. Title of the audio as defined by the sender or by audio tags
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
     /// Optional. Original filename as defined by the sender
-    file_name: ?[]u8 = null,
+    file_name: ?[]const u8 = null,
     /// Optional. MIME type of the file as defined by the sender
-    mime_type: ?[]u8 = null,
+    mime_type: ?[]const u8 = null,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
     /// Optional. Thumbnail of the album cover to which the music file belongs
@@ -707,15 +704,15 @@ pub const Audio = struct {
 /// This object represents a general file (as opposed to photos, voice messages and audio files).
 pub const Document = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Optional. Document thumbnail as defined by the sender
     thumbnail: ?PhotoSize = null,
     /// Optional. Original filename as defined by the sender
-    file_name: ?[]u8 = null,
+    file_name: ?[]const u8 = null,
     /// Optional. MIME type of the file as defined by the sender
-    mime_type: ?[]u8 = null,
+    mime_type: ?[]const u8 = null,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
 };
@@ -731,9 +728,9 @@ pub const Story = struct {
 /// This object represents a video file.
 pub const Video = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Video width as defined by the sender
     width: i64,
     /// Video height as defined by the sender
@@ -747,9 +744,9 @@ pub const Video = struct {
     /// Optional. Timestamp in seconds from which the video will play in the message
     start_timestamp: ?i64 = null,
     /// Optional. Original filename as defined by the sender
-    file_name: ?[]u8 = null,
+    file_name: ?[]const u8 = null,
     /// Optional. MIME type of the file as defined by the sender
-    mime_type: ?[]u8 = null,
+    mime_type: ?[]const u8 = null,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
 };
@@ -757,9 +754,9 @@ pub const Video = struct {
 /// This object represents a video message (available in Telegram apps as of v.4.0).
 pub const VideoNote = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Video width and height (diameter of the video message) as defined by the sender
     length: i64,
     /// Duration of the video in seconds as defined by the sender
@@ -773,13 +770,13 @@ pub const VideoNote = struct {
 /// This object represents a voice note.
 pub const Voice = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Duration of the audio in seconds as defined by the sender
     duration: i64,
     /// Optional. MIME type of the file as defined by the sender
-    mime_type: ?[]u8 = null,
+    mime_type: ?[]const u8 = null,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
 };
@@ -795,7 +792,7 @@ pub const PaidMediaInfo = struct {
 /// The paid media isn't available before the payment.
 pub const PaidMediaPreview = struct {
     /// Type of the paid media, always “preview”
-    type: []u8,
+    type: []const u8,
     /// Optional. Media width as defined by the sender
     width: ?i64 = null,
     /// Optional. Media height as defined by the sender
@@ -807,7 +804,7 @@ pub const PaidMediaPreview = struct {
 /// The paid media is a photo.
 pub const PaidMediaPhoto = struct {
     /// Type of the paid media, always “photo”
-    type: []u8,
+    type: []const u8,
     /// The photo
     photo: []PhotoSize,
 };
@@ -815,7 +812,7 @@ pub const PaidMediaPhoto = struct {
 /// The paid media is a video.
 pub const PaidMediaVideo = struct {
     /// Type of the paid media, always “video”
-    type: []u8,
+    type: []const u8,
     /// The video
     video: Video,
 };
@@ -823,21 +820,21 @@ pub const PaidMediaVideo = struct {
 /// This object represents a phone contact.
 pub const Contact = struct {
     /// Contact's phone number
-    phone_number: []u8,
+    phone_number: []const u8,
     /// Contact's first name
-    first_name: []u8,
+    first_name: []const u8,
     /// Optional. Contact's last name
-    last_name: ?[]u8 = null,
+    last_name: ?[]const u8 = null,
     /// Optional. Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
     user_id: ?i64 = null,
     /// Optional. Additional data about the contact in the form of a vCard
-    vcard: ?[]u8 = null,
+    vcard: ?[]const u8 = null,
 };
 
 /// This object represents an animated emoji that displays a random value.
 pub const Dice = struct {
     /// Emoji on which the dice throw animation is based
-    emoji: []u8,
+    emoji: []const u8,
     /// Value of the dice, 1-6 for “”, “” and “” base emoji, 1-5 for “” and “” base emoji, 1-64 for “” base emoji
     value: i64,
 };
@@ -845,7 +842,7 @@ pub const Dice = struct {
 /// This object contains information about one answer option in a poll.
 pub const PollOption = struct {
     /// Option text, 1-100 characters
-    text: []u8,
+    text: []const u8,
     /// Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
     text_entities: ?[]MessageEntity = null,
     /// Number of users that voted for this option
@@ -855,9 +852,9 @@ pub const PollOption = struct {
 /// This object contains information about one answer option in a poll to be sent.
 pub const InputPollOption = struct {
     /// Option text, 1-100 characters
-    text: []u8,
+    text: []const u8,
     /// Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
-    text_parse_mode: ?[]u8 = null,
+    text_parse_mode: ?[]const u8 = null,
     /// Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode
     text_entities: ?[]MessageEntity = null,
 };
@@ -865,7 +862,7 @@ pub const InputPollOption = struct {
 /// This object represents an answer of a user in a non-anonymous poll.
 pub const PollAnswer = struct {
     /// Unique poll identifier
-    poll_id: []u8,
+    poll_id: []const u8,
     /// Optional. The chat that changed the answer to the poll, if the voter is anonymous
     voter_chat: ?Chat = null,
     /// Optional. The user that changed the answer to the poll, if the voter isn't anonymous
@@ -877,9 +874,9 @@ pub const PollAnswer = struct {
 /// This object contains information about a poll.
 pub const Poll = struct {
     /// Unique poll identifier
-    id: []u8,
+    id: []const u8,
     /// Poll question, 1-300 characters
-    question: []u8,
+    question: []const u8,
     /// Optional. Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
     question_entities: ?[]MessageEntity = null,
     /// List of poll options
@@ -891,13 +888,13 @@ pub const Poll = struct {
     /// True, if the poll is anonymous
     is_anonymous: bool,
     /// Poll type, currently can be “regular” or “quiz”
-    type: []u8,
+    type: []const u8,
     /// True, if the poll allows multiple answers
     allows_multiple_answers: bool,
     /// Optional. 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
     correct_option_id: ?i64 = null,
     /// Optional. Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters
-    explanation: ?[]u8 = null,
+    explanation: ?[]const u8 = null,
     /// Optional. Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
     explanation_entities: ?[]MessageEntity = null,
     /// Optional. Amount of time in seconds the poll will be active after creation
@@ -927,25 +924,25 @@ pub const Venue = struct {
     /// Venue location. Can't be a live location
     location: Location,
     /// Name of the venue
-    title: []u8,
+    title: []const u8,
     /// Address of the venue
-    address: []u8,
+    address: []const u8,
     /// Optional. Foursquare identifier of the venue
-    foursquare_id: ?[]u8 = null,
+    foursquare_id: ?[]const u8 = null,
     /// Optional. Foursquare type of the venue. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
-    foursquare_type: ?[]u8 = null,
+    foursquare_type: ?[]const u8 = null,
     /// Optional. Google Places identifier of the venue
-    google_place_id: ?[]u8 = null,
+    google_place_id: ?[]const u8 = null,
     /// Optional. Google Places type of the venue. (See supported types.)
-    google_place_type: ?[]u8 = null,
+    google_place_type: ?[]const u8 = null,
 };
 
 /// Describes data sent from a Web App to the bot.
 pub const WebAppData = struct {
     /// The data. Be aware that a bad client can send arbitrary data in this field.
-    data: []u8,
+    data: []const u8,
     /// Text of the web_app keyboard button from which the Web App was opened. Be aware that a bad client can send arbitrary data in this field.
-    button_text: []u8,
+    button_text: []const u8,
 };
 
 /// This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user.
@@ -973,7 +970,7 @@ pub const ChatBoostAdded = struct {
 /// The background is filled using the selected color.
 pub const BackgroundFillSolid = struct {
     /// Type of the background fill, always “solid”
-    type: []u8,
+    type: []const u8,
     /// The color of the background fill in the RGB24 format
     color: i64,
 };
@@ -981,7 +978,7 @@ pub const BackgroundFillSolid = struct {
 /// The background is a gradient fill.
 pub const BackgroundFillGradient = struct {
     /// Type of the background fill, always “gradient”
-    type: []u8,
+    type: []const u8,
     /// Top color of the gradient in the RGB24 format
     top_color: i64,
     /// Bottom color of the gradient in the RGB24 format
@@ -993,7 +990,7 @@ pub const BackgroundFillGradient = struct {
 /// The background is a freeform gradient that rotates after every message in the chat.
 pub const BackgroundFillFreeformGradient = struct {
     /// Type of the background fill, always “freeform_gradient”
-    type: []u8,
+    type: []const u8,
     /// A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
     colors: []i64,
 };
@@ -1001,7 +998,7 @@ pub const BackgroundFillFreeformGradient = struct {
 /// The background is automatically filled based on the selected colors.
 pub const BackgroundTypeFill = struct {
     /// Type of the background, always “fill”
-    type: []u8,
+    type: []const u8,
     /// The background fill
     fill: BackgroundFill,
     /// Dimming of the background in dark themes, as a percentage; 0-100
@@ -1011,7 +1008,7 @@ pub const BackgroundTypeFill = struct {
 /// The background is a wallpaper in the JPEG format.
 pub const BackgroundTypeWallpaper = struct {
     /// Type of the background, always “wallpaper”
-    type: []u8,
+    type: []const u8,
     /// Document with the wallpaper
     document: Document,
     /// Dimming of the background in dark themes, as a percentage; 0-100
@@ -1025,7 +1022,7 @@ pub const BackgroundTypeWallpaper = struct {
 /// The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user.
 pub const BackgroundTypePattern = struct {
     /// Type of the background, always “pattern”
-    type: []u8,
+    type: []const u8,
     /// Document with the pattern
     document: Document,
     /// The background fill that is combined with the pattern
@@ -1041,9 +1038,9 @@ pub const BackgroundTypePattern = struct {
 /// The background is taken directly from a built-in chat theme.
 pub const BackgroundTypeChatTheme = struct {
     /// Type of the background, always “chat_theme”
-    type: []u8,
+    type: []const u8,
     /// Name of the chat theme, which is usually an emoji
-    theme_name: []u8,
+    theme_name: []const u8,
 };
 
 /// This object represents a chat background.
@@ -1055,19 +1052,19 @@ pub const ChatBackground = struct {
 /// This object represents a service message about a new forum topic created in the chat.
 pub const ForumTopicCreated = struct {
     /// Name of the topic
-    name: []u8,
+    name: []const u8,
     /// Color of the topic icon in RGB format
     icon_color: i64,
     /// Optional. Unique identifier of the custom emoji shown as the topic icon
-    icon_custom_emoji_id: ?[]u8 = null,
+    icon_custom_emoji_id: ?[]const u8 = null,
 };
 
 /// This object represents a service message about an edited forum topic.
 pub const ForumTopicEdited = struct {
     /// Optional. New name of the topic, if it was edited
-    name: ?[]u8 = null,
+    name: ?[]const u8 = null,
     /// Optional. New identifier of the custom emoji shown as the topic icon, if it was edited; an empty string if the icon was removed
-    icon_custom_emoji_id: ?[]u8 = null,
+    icon_custom_emoji_id: ?[]const u8 = null,
 };
 
 /// This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button.
@@ -1075,11 +1072,11 @@ pub const SharedUser = struct {
     /// Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means.
     user_id: i64,
     /// Optional. First name of the user, if the name was requested by the bot
-    first_name: ?[]u8 = null,
+    first_name: ?[]const u8 = null,
     /// Optional. Last name of the user, if the name was requested by the bot
-    last_name: ?[]u8 = null,
+    last_name: ?[]const u8 = null,
     /// Optional. Username of the user, if the username was requested by the bot
-    username: ?[]u8 = null,
+    username: ?[]const u8 = null,
     /// Optional. Available sizes of the chat photo, if the photo was requested by the bot
     photo: ?[]PhotoSize = null,
 };
@@ -1099,9 +1096,9 @@ pub const ChatShared = struct {
     /// Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
     chat_id: i64,
     /// Optional. Title of the chat, if the title was requested by the bot.
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
     /// Optional. Username of the chat, if the username was requested by the bot and available.
-    username: ?[]u8 = null,
+    username: ?[]const u8 = null,
     /// Optional. Available sizes of the chat photo, if the photo was requested by the bot
     photo: ?[]PhotoSize = null,
 };
@@ -1111,7 +1108,7 @@ pub const WriteAccessAllowed = struct {
     /// Optional. True, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess
     from_request: ?bool = null,
     /// Optional. Name of the Web App, if the access was granted when the Web App was launched from a link
-    web_app_name: ?[]u8 = null,
+    web_app_name: ?[]const u8 = null,
     /// Optional. True, if the access was granted when the bot was added to the attachment or side menu
     from_attachment_menu: ?bool = null,
 };
@@ -1153,9 +1150,9 @@ pub const Giveaway = struct {
     /// Optional. True, if the list of giveaway winners will be visible to everyone
     has_public_winners: ?@TypeOf(true) = null,
     /// Optional. Description of additional giveaway prize
-    prize_description: ?[]u8 = null,
+    prize_description: ?[]const u8 = null,
     /// Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
-    country_codes: ?[][]u8 = null,
+    country_codes: ?[][]const u8 = null,
     /// Optional. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
     prize_star_count: ?i64 = null,
     /// Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
@@ -1187,7 +1184,7 @@ pub const GiveawayWinners = struct {
     /// Optional. True, if the giveaway was canceled because the payment for it was refunded
     was_refunded: ?@TypeOf(true) = null,
     /// Optional. Description of additional giveaway prize
-    prize_description: ?[]u8 = null,
+    prize_description: ?[]const u8 = null,
 };
 
 /// This object represents a service message about the completion of a giveaway without public winners.
@@ -1207,7 +1204,7 @@ pub const LinkPreviewOptions = struct {
     /// Optional. True, if the link preview is disabled
     is_disabled: ?bool = null,
     /// Optional. URL to use for the link preview. If empty, then the first URL found in the message text will be used
-    url: ?[]u8 = null,
+    url: ?[]const u8 = null,
     /// Optional. True, if the media in the link preview is supposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview
     prefer_small_media: ?bool = null,
     /// Optional. True, if the media in the link preview is supposed to be enlarged; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview
@@ -1227,19 +1224,19 @@ pub const UserProfilePhotos = struct {
 /// This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 pub const File = struct {
     /// Identifier for this file, which can be used to download or reuse the file
-    file_id: []u8,
+    file_id: []const u8,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    file_unique_id: []u8,
+    file_unique_id: []const u8,
     /// Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
     file_size: ?i64 = null,
     /// Optional. File path. Use https://api.telegram.org/file/bot<token>/<file_path> to get the file.
-    file_path: ?[]u8 = null,
+    file_path: ?[]const u8 = null,
 };
 
 /// Describes a Web App.
 pub const WebAppInfo = struct {
     /// An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
-    url: []u8,
+    url: []const u8,
 };
 
 /// This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
@@ -1253,7 +1250,7 @@ pub const ReplyKeyboardMarkup = struct {
     /// Optional. Requests clients to hide the keyboard as soon as it's been used. The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat - the user can press a special button in the input field to see the custom keyboard again. Defaults to false.
     one_time_keyboard: ?bool = null,
     /// Optional. The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
-    input_field_placeholder: ?[]u8 = null,
+    input_field_placeholder: ?[]const u8 = null,
     /// Optional. Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard.
     selective: ?bool = null,
 };
@@ -1261,7 +1258,7 @@ pub const ReplyKeyboardMarkup = struct {
 /// This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
 pub const KeyboardButton = struct {
     /// Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
-    text: []u8,
+    text: []const u8,
     /// Optional. If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only.
     request_users: ?KeyboardButtonRequestUsers = null,
     /// Optional. If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat_shared” service message. Available in private chats only.
@@ -1323,7 +1320,7 @@ pub const KeyboardButtonRequestChat = struct {
 /// This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
 pub const KeyboardButtonPollType = struct {
     /// Optional. If quiz is passed, the user will be allowed to create only polls in the quiz mode. If regular is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
-    type: ?[]u8 = null,
+    type: ?[]const u8 = null,
 };
 
 /// Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.
@@ -1343,19 +1340,19 @@ pub const InlineKeyboardMarkup = struct {
 /// This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
 pub const InlineKeyboardButton = struct {
     /// Label text on the button
-    text: []u8,
+    text: []const u8,
     /// Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
-    url: ?[]u8 = null,
+    url: ?[]const u8 = null,
     /// Optional. Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
-    callback_data: ?[]u8 = null,
+    callback_data: ?[]const u8 = null,
     /// Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
     web_app: ?WebAppInfo = null,
     /// Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
     login_url: ?LoginUrl = null,
     /// Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
-    switch_inline_query: ?[]u8 = null,
+    switch_inline_query: ?[]const u8 = null,
     /// Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
-    switch_inline_query_current_chat: ?[]u8 = null,
+    switch_inline_query_current_chat: ?[]const u8 = null,
     /// Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
     switch_inline_query_chosen_chat: ?SwitchInlineQueryChosenChat = null,
     /// Optional. Description of the button that copies the specified text to the clipboard.
@@ -1369,11 +1366,11 @@ pub const InlineKeyboardButton = struct {
 /// This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:Telegram apps support these buttons as of version 5.7.
 pub const LoginUrl = struct {
     /// An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
-    url: []u8,
+    url: []const u8,
     /// Optional. New text of the button in forwarded messages.
-    forward_text: ?[]u8 = null,
+    forward_text: ?[]const u8 = null,
     /// Optional. Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details.
-    bot_username: ?[]u8 = null,
+    bot_username: ?[]const u8 = null,
     /// Optional. Pass True to request the permission for your bot to send messages to the user.
     request_write_access: ?bool = null,
 };
@@ -1381,7 +1378,7 @@ pub const LoginUrl = struct {
 /// This object represents an inline button that switches the current user to inline mode in a chosen chat, with an optional default inline query.
 pub const SwitchInlineQueryChosenChat = struct {
     /// Optional. The default inline query to be inserted in the input field. If left empty, only the bot's username will be inserted
-    query: ?[]u8 = null,
+    query: ?[]const u8 = null,
     /// Optional. True, if private chats with users can be chosen
     allow_user_chats: ?bool = null,
     /// Optional. True, if private chats with bots can be chosen
@@ -1395,25 +1392,25 @@ pub const SwitchInlineQueryChosenChat = struct {
 /// This object represents an inline keyboard button that copies specified text to the clipboard.
 pub const CopyTextButton = struct {
     /// The text to be copied to the clipboard; 1-256 characters
-    text: []u8,
+    text: []const u8,
 };
 
 /// This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
 pub const CallbackQuery = struct {
     /// Unique identifier for this query
-    id: []u8,
+    id: []const u8,
     /// Sender
     from: User,
     /// Optional. Message sent by the bot with the callback button that originated the query
     message: ?MaybeInaccessibleMessage = null,
     /// Optional. Identifier of the message sent via the bot in inline mode, that originated the query.
-    inline_message_id: ?[]u8 = null,
+    inline_message_id: ?[]const u8 = null,
     /// Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
-    chat_instance: []u8,
+    chat_instance: []const u8,
     /// Optional. Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.
-    data: ?[]u8 = null,
+    data: ?[]const u8 = null,
     /// Optional. Short name of a Game to be returned, serves as the unique identifier for the game
-    game_short_name: ?[]u8 = null,
+    game_short_name: ?[]const u8 = null,
 };
 
 /// Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.
@@ -1421,7 +1418,7 @@ pub const ForceReply = struct {
     /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
     force_reply: @TypeOf(true),
     /// Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters
-    input_field_placeholder: ?[]u8 = null,
+    input_field_placeholder: ?[]const u8 = null,
     /// Optional. Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
     selective: ?bool = null,
 };
@@ -1429,19 +1426,19 @@ pub const ForceReply = struct {
 /// This object represents a chat photo.
 pub const ChatPhoto = struct {
     /// File identifier of small (160x160) chat photo. This file_id can be used only for photo download and only for as long as the photo is not changed.
-    small_file_id: []u8,
+    small_file_id: []const u8,
     /// Unique file identifier of small (160x160) chat photo, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    small_file_unique_id: []u8,
+    small_file_unique_id: []const u8,
     /// File identifier of big (640x640) chat photo. This file_id can be used only for photo download and only for as long as the photo is not changed.
-    big_file_id: []u8,
+    big_file_id: []const u8,
     /// Unique file identifier of big (640x640) chat photo, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-    big_file_unique_id: []u8,
+    big_file_unique_id: []const u8,
 };
 
 /// Represents an invite link for a chat.
 pub const ChatInviteLink = struct {
     /// The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with “…”.
-    invite_link: []u8,
+    invite_link: []const u8,
     /// Creator of the link
     creator: User,
     /// True, if users joining the chat via the link need to be approved by chat administrators
@@ -1451,7 +1448,7 @@ pub const ChatInviteLink = struct {
     /// True, if the link is revoked
     is_revoked: bool,
     /// Optional. Invite link name
-    name: ?[]u8 = null,
+    name: ?[]const u8 = null,
     /// Optional. Point in time (Unix timestamp) when the link will expire or has been expired
     expire_date: ?i64 = null,
     /// Optional. The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
@@ -1521,19 +1518,19 @@ pub const ChatMemberUpdated = struct {
 /// Represents a chat member that owns the chat and has all administrator privileges.
 pub const ChatMemberOwner = struct {
     /// The member's status in the chat, always “creator”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
     /// True, if the user's presence in the chat is hidden
     is_anonymous: bool,
     /// Optional. Custom title for this user
-    custom_title: ?[]u8 = null,
+    custom_title: ?[]const u8 = null,
 };
 
 /// Represents a chat member that has some additional privileges.
 pub const ChatMemberAdministrator = struct {
     /// The member's status in the chat, always “administrator”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
     /// True, if the bot is allowed to edit administrator privileges of that user
@@ -1569,13 +1566,13 @@ pub const ChatMemberAdministrator = struct {
     /// Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
     can_manage_topics: ?bool = null,
     /// Optional. Custom title for this user
-    custom_title: ?[]u8 = null,
+    custom_title: ?[]const u8 = null,
 };
 
 /// Represents a chat member that has no additional privileges or restrictions.
 pub const ChatMemberMember = struct {
     /// The member's status in the chat, always “member”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
     /// Optional. Date when the user's subscription will expire; Unix time
@@ -1585,7 +1582,7 @@ pub const ChatMemberMember = struct {
 /// Represents a chat member that is under certain restrictions in the chat. Supergroups only.
 pub const ChatMemberRestricted = struct {
     /// The member's status in the chat, always “restricted”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
     /// True, if the user is a member of the chat at the moment of the request
@@ -1625,7 +1622,7 @@ pub const ChatMemberRestricted = struct {
 /// Represents a chat member that isn't currently a member of the chat, but may join it themselves.
 pub const ChatMemberLeft = struct {
     /// The member's status in the chat, always “left”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
 };
@@ -1633,7 +1630,7 @@ pub const ChatMemberLeft = struct {
 /// Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
 pub const ChatMemberBanned = struct {
     /// The member's status in the chat, always “kicked”
-    status: []u8,
+    status: []const u8,
     /// Information about the user
     user: User,
     /// Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever
@@ -1651,7 +1648,7 @@ pub const ChatJoinRequest = struct {
     /// Date the request was sent in Unix time
     date: i64,
     /// Optional. Bio of the user.
-    bio: ?[]u8 = null,
+    bio: ?[]const u8 = null,
     /// Optional. Chat invite link that was used by the user to send the join request
     invite_link: ?ChatInviteLink = null,
 };
@@ -1701,9 +1698,9 @@ pub const Birthdate = struct {
 /// Contains information about the start page settings of a Telegram Business account.
 pub const BusinessIntro = struct {
     /// Optional. Title text of the business intro
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
     /// Optional. Message text of the business intro
-    message: ?[]u8 = null,
+    message: ?[]const u8 = null,
     /// Optional. Sticker of the business intro
     sticker: ?Sticker = null,
 };
@@ -1711,7 +1708,7 @@ pub const BusinessIntro = struct {
 /// Contains information about the location of a Telegram Business account.
 pub const BusinessLocation = struct {
     /// Address of the business
-    address: []u8,
+    address: []const u8,
     /// Optional. Location of the business
     location: ?Location = null,
 };
@@ -1727,7 +1724,7 @@ pub const BusinessOpeningHoursInterval = struct {
 /// Describes the opening hours of a business.
 pub const BusinessOpeningHours = struct {
     /// Unique name of the time zone for which the opening hours are defined
-    time_zone_name: []u8,
+    time_zone_name: []const u8,
     /// List of time intervals describing business opening hours
     opening_hours: []BusinessOpeningHoursInterval,
 };
@@ -1737,29 +1734,29 @@ pub const ChatLocation = struct {
     /// The location to which the supergroup is connected. Can't be a live location.
     location: Location,
     /// Location address; 1-64 characters, as defined by the chat owner
-    address: []u8,
+    address: []const u8,
 };
 
 /// The reaction is based on an emoji.
 pub const ReactionTypeEmoji = struct {
     /// Type of the reaction, always “emoji”
-    type: []u8,
+    type: []const u8,
     /// Reaction emoji. Currently, it can be one of "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
-    emoji: []u8,
+    emoji: []const u8,
 };
 
 /// The reaction is based on a custom emoji.
 pub const ReactionTypeCustomEmoji = struct {
     /// Type of the reaction, always “custom_emoji”
-    type: []u8,
+    type: []const u8,
     /// Custom emoji identifier
-    custom_emoji_id: []u8,
+    custom_emoji_id: []const u8,
 };
 
 /// The reaction is paid.
 pub const ReactionTypePaid = struct {
     /// Type of the reaction, always “paid”
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents a reaction added to a message along with the number of times it was added.
@@ -1805,49 +1802,49 @@ pub const ForumTopic = struct {
     /// Unique identifier of the forum topic
     message_thread_id: i64,
     /// Name of the topic
-    name: []u8,
+    name: []const u8,
     /// Color of the topic icon in RGB format
     icon_color: i64,
     /// Optional. Unique identifier of the custom emoji shown as the topic icon
-    icon_custom_emoji_id: ?[]u8 = null,
+    icon_custom_emoji_id: ?[]const u8 = null,
 };
 
 /// This object represents a bot command.
 pub const BotCommand = struct {
     /// Text of the command; 1-32 characters. Can contain only lowercase English letters, digits and underscores.
-    command: []u8,
+    command: []const u8,
     /// Description of the command; 1-256 characters.
-    description: []u8,
+    description: []const u8,
 };
 
 /// Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
 pub const BotCommandScopeDefault = struct {
     /// Scope type, must be default
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents the scope of bot commands, covering all private chats.
 pub const BotCommandScopeAllPrivateChats = struct {
     /// Scope type, must be all_private_chats
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents the scope of bot commands, covering all group and supergroup chats.
 pub const BotCommandScopeAllGroupChats = struct {
     /// Scope type, must be all_group_chats
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents the scope of bot commands, covering all group and supergroup chat administrators.
 pub const BotCommandScopeAllChatAdministrators = struct {
     /// Scope type, must be all_chat_administrators
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents the scope of bot commands, covering a specific chat.
 pub const BotCommandScopeChat = struct {
     /// Scope type, must be chat
-    type: []u8,
+    type: []const u8,
     /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     chat_id: integer_or_string,
 };
@@ -1855,7 +1852,7 @@ pub const BotCommandScopeChat = struct {
 /// Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
 pub const BotCommandScopeChatAdministrators = struct {
     /// Scope type, must be chat_administrators
-    type: []u8,
+    type: []const u8,
     /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     chat_id: integer_or_string,
 };
@@ -1863,7 +1860,7 @@ pub const BotCommandScopeChatAdministrators = struct {
 /// Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
 pub const BotCommandScopeChatMember = struct {
     /// Scope type, must be chat_member
-    type: []u8,
+    type: []const u8,
     /// Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
     chat_id: integer_or_string,
     /// Unique identifier of the target user
@@ -1873,33 +1870,33 @@ pub const BotCommandScopeChatMember = struct {
 /// This object represents the bot's name.
 pub const BotName = struct {
     /// The bot's name
-    name: []u8,
+    name: []const u8,
 };
 
 /// This object represents the bot's description.
 pub const BotDescription = struct {
     /// The bot's description
-    description: []u8,
+    description: []const u8,
 };
 
 /// This object represents the bot's short description.
 pub const BotShortDescription = struct {
     /// The bot's short description
-    short_description: []u8,
+    short_description: []const u8,
 };
 
 /// Represents a menu button, which opens the bot's list of commands.
 pub const MenuButtonCommands = struct {
     /// Type of the button, must be commands
-    type: []u8,
+    type: []const u8,
 };
 
 /// Represents a menu button, which launches a Web App.
 pub const MenuButtonWebApp = struct {
     /// Type of the button, must be web_app
-    type: []u8,
+    type: []const u8,
     /// Text on the button
-    text: []u8,
+    text: []const u8,
     /// Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link.
     web_app: WebAppInfo,
 };
@@ -1907,13 +1904,13 @@ pub const MenuButtonWebApp = struct {
 /// Describes that no specific value for the menu button was set.
 pub const MenuButtonDefault = struct {
     /// Type of the button, must be default
-    type: []u8,
+    type: []const u8,
 };
 
 /// The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.
 pub const ChatBoostSourcePremium = struct {
     /// Source of the boost, always “premium”
-    source: []u8,
+    source: []const u8,
     /// User that boosted the chat
     user: User,
 };
@@ -1921,7 +1918,7 @@ pub const ChatBoostSourcePremium = struct {
 /// The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
 pub const ChatBoostSourceGiftCode = struct {
     /// Source of the boost, always “gift_code”
-    source: []u8,
+    source: []const u8,
     /// User for which the gift code was created
     user: User,
 };
@@ -1929,7 +1926,7 @@ pub const ChatBoostSourceGiftCode = struct {
 /// The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways.
 pub const ChatBoostSourceGiveaway = struct {
     /// Source of the boost, always “giveaway”
-    source: []u8,
+    source: []const u8,
     /// Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
     giveaway_message_id: i64,
     /// Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only
@@ -1943,7 +1940,7 @@ pub const ChatBoostSourceGiveaway = struct {
 /// This object contains information about a chat boost.
 pub const ChatBoost = struct {
     /// Unique identifier of the boost
-    boost_id: []u8,
+    boost_id: []const u8,
     /// Point in time (Unix timestamp) when the chat was boosted
     add_date: i64,
     /// Point in time (Unix timestamp) when the boost will automatically expire, unless the booster's Telegram Premium subscription is prolonged
@@ -1965,7 +1962,7 @@ pub const ChatBoostRemoved = struct {
     /// Chat which was boosted
     chat: Chat,
     /// Unique identifier of the boost
-    boost_id: []u8,
+    boost_id: []const u8,
     /// Point in time (Unix timestamp) when the boost was removed
     remove_date: i64,
     /// Source of the removed boost
@@ -1981,7 +1978,7 @@ pub const UserChatBoosts = struct {
 /// Describes the connection of the bot with a business account.
 pub const BusinessConnection = struct {
     /// Unique identifier of the business connection
-    id: []u8,
+    id: []const u8,
     /// Business account user that created the business connection
     user: User,
     /// Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
@@ -1997,7 +1994,7 @@ pub const BusinessConnection = struct {
 /// This object is received when messages are deleted from a connected business account.
 pub const BusinessMessagesDeleted = struct {
     /// Unique identifier of the business connection
-    business_connection_id: []u8,
+    business_connection_id: []const u8,
     /// Information about a chat in the business account. The bot may not have access to the chat or the corresponding user.
     chat: Chat,
     /// The list of identifiers of deleted messages in the chat of the business account
@@ -2015,13 +2012,13 @@ pub const ResponseParameters = struct {
 /// Represents a photo to be sent.
 pub const InputMediaPhoto = struct {
     /// Type of the result, must be photo
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-    parse_mode: ?[]u8 = null,
+    parse_mode: ?[]const u8 = null,
     /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
     caption_entities: ?[]MessageEntity = null,
     /// Optional. Pass True, if the caption must be shown above the message media
@@ -2033,19 +2030,19 @@ pub const InputMediaPhoto = struct {
 /// Represents a video to be sent.
 pub const InputMediaVideo = struct {
     /// Type of the result, must be video
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-    thumbnail: ?[]u8 = null,
+    thumbnail: ?[]const u8 = null,
     /// Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    cover: ?[]u8 = null,
+    cover: ?[]const u8 = null,
     /// Optional. Start timestamp for the video in the message
     start_timestamp: ?i64 = null,
     /// Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-    parse_mode: ?[]u8 = null,
+    parse_mode: ?[]const u8 = null,
     /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
     caption_entities: ?[]MessageEntity = null,
     /// Optional. Pass True, if the caption must be shown above the message media
@@ -2065,15 +2062,15 @@ pub const InputMediaVideo = struct {
 /// Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
 pub const InputMediaAnimation = struct {
     /// Type of the result, must be animation
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-    thumbnail: ?[]u8 = null,
+    thumbnail: ?[]const u8 = null,
     /// Optional. Caption of the animation to be sent, 0-1024 characters after entities parsing
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the animation caption. See formatting options for more details.
-    parse_mode: ?[]u8 = null,
+    parse_mode: ?[]const u8 = null,
     /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
     caption_entities: ?[]MessageEntity = null,
     /// Optional. Pass True, if the caption must be shown above the message media
@@ -2091,37 +2088,37 @@ pub const InputMediaAnimation = struct {
 /// Represents an audio file to be treated as music to be sent.
 pub const InputMediaAudio = struct {
     /// Type of the result, must be audio
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-    thumbnail: ?[]u8 = null,
+    thumbnail: ?[]const u8 = null,
     /// Optional. Caption of the audio to be sent, 0-1024 characters after entities parsing
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the audio caption. See formatting options for more details.
-    parse_mode: ?[]u8 = null,
+    parse_mode: ?[]const u8 = null,
     /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
     caption_entities: ?[]MessageEntity = null,
     /// Optional. Duration of the audio in seconds
     duration: ?i64 = null,
     /// Optional. Performer of the audio
-    performer: ?[]u8 = null,
+    performer: ?[]const u8 = null,
     /// Optional. Title of the audio
-    title: ?[]u8 = null,
+    title: ?[]const u8 = null,
 };
 
 /// Represents a general file to be sent.
 pub const InputMediaDocument = struct {
     /// Type of the result, must be document
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-    thumbnail: ?[]u8 = null,
+    thumbnail: ?[]const u8 = null,
     /// Optional. Caption of the document to be sent, 0-1024 characters after entities parsing
-    caption: ?[]u8 = null,
+    caption: ?[]const u8 = null,
     /// Optional. Mode for parsing entities in the document caption. See formatting options for more details.
-    parse_mode: ?[]u8 = null,
+    parse_mode: ?[]const u8 = null,
     /// Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
     caption_entities: ?[]MessageEntity = null,
     /// Optional. Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always True, if the document is sent as part of an album.
@@ -2131,21 +2128,21 @@ pub const InputMediaDocument = struct {
 /// The paid media to send is a photo.
 pub const InputPaidMediaPhoto = struct {
     /// Type of the media, must be photo
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
 };
 
 /// The paid media to send is a video.
 pub const InputPaidMediaVideo = struct {
     /// Type of the media, must be video
-    type: []u8,
+    type: []const u8,
     /// File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    media: []u8,
+    media: []const u8,
     /// Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-    thumbnail: ?[]u8 = null,
+    thumbnail: ?[]const u8 = null,
     /// Optional. Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-    cover: ?[]u8 = null,
+    cover: ?[]const u8 = null,
     /// Optional. Start timestamp for the video in the message
     start_timestamp: ?i64 = null,
     /// Optional. Video width
