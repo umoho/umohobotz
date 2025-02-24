@@ -9,7 +9,7 @@ const query_string = @import("query_string.zig");
 /// Note:
 ///
 /// - Remember to free the returned URL.
-/// - If `args` is `void`, it will not add query string.
+/// - If `args` is `.{}`, it will not add query string.
 pub fn makeUrl(
     allocator: Allocator,
     api_uri_prefix: []const u8,
@@ -22,15 +22,13 @@ pub fn makeUrl(
     try str.appendSlice(api_uri_prefix);
     try str.appendSlice(method);
 
-    if (@TypeOf(args) != void) {
-        const pairs = try query_string.pairsFromStruct(allocator, @TypeOf(args), args);
-        defer query_string.freePairs(allocator, @TypeOf(args), pairs);
+    const pairs = try query_string.pairsFromStruct(allocator, @TypeOf(args), args);
+    defer query_string.freePairs(allocator, @TypeOf(args), pairs);
 
-        const qs = try query_string.buildQueryString(allocator, pairs);
-        defer allocator.free(qs);
+    const qs = try query_string.buildQueryString(allocator, pairs);
+    defer allocator.free(qs);
 
-        try str.appendSlice(qs);
-    }
+    try str.appendSlice(qs);
 
     return str.toOwnedSlice();
 }
