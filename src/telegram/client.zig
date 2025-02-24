@@ -20,18 +20,20 @@ pub const Client = struct {
     client: StdClient,
 
     /// The prefix of the Telegram Bot API URI.
-    api_uri_prefix: []const u8 = "https://api.telegram.org/bot",
+    api_uri_prefix: []const u8,
 
     /// Initialize the client.
-    pub fn init(allocator: Allocator) !Client {
+    pub fn init(allocator: Allocator, token: []const u8) !Client {
         return Client{
             .allocator = allocator,
             .client = .{ .allocator = allocator },
+            .api_uri_prefix = try urlPrefixWithToken(allocator, token),
         };
     }
 
     /// Deinitialize the client.
     pub fn deinit(self: *Client) void {
+        self.allocator.free(self.api_uri_prefix);
         self.client.deinit();
     }
 
@@ -127,4 +129,20 @@ fn ResponseObject(comptime T: type) type {
         error_code: ?i32 = null,
         parameters: ?objects.ResponseParameters = null,
     };
+}
+
+/// Build the URL prefix with the token.
+///
+/// Note:
+///
+/// - Remember to free the returned slice using `allocator.free`.
+fn urlPrefixWithToken(allocator: Allocator, token: []const u8) ![]u8 {
+    var result = std.ArrayList(u8).init(allocator);
+    defer result.deinit();
+
+    try result.appendSlice("https://api.telegram.org/bot");
+    try result.appendSlice(token);
+    try result.append('/');
+
+    return result.toOwnedSlice();
 }
