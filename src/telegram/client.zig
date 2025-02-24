@@ -1,17 +1,8 @@
 const std = @import("std");
 
 const Allocator = std.mem.Allocator;
-const Uri = std.Uri;
-const Request = std.http.Client.Request;
-const StdClient = std.http.Client;
-
-const query_string = @import("../url/query_string.zig");
-const url = @import("../url/url.zig");
 
 const Object = @import("objects.zig").Object;
-
-const server_header_buf_size = 4096;
-const response_buf_size = 1024 * 1024;
 
 /// Client for sending HTTPS requests to Telegram Bot API.
 pub const Client = struct {
@@ -23,6 +14,16 @@ pub const Client = struct {
 
     /// The prefix of the Telegram Bot API URI.
     api_uri_prefix: []const u8,
+
+    const Uri = std.Uri;
+    const Request = std.http.Client.Request;
+    const StdClient = std.http.Client;
+
+    const query_string = @import("../url/query_string.zig");
+    const url = @import("../url/url.zig");
+
+    const server_header_buf_size = 4096;
+    const response_buf_size = 1024 * 1024;
 
     /// Initialize the client.
     pub fn init(allocator: Allocator, token: []const u8) !Client {
