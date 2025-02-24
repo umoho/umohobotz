@@ -14,7 +14,7 @@ pub fn Pair(comptime K: type, comptime V: type) type {
 ///
 /// Note:
 ///
-/// - Remember to free the returned pairs.
+/// - Remember to free the returned pairs by `freePairs`.
 pub fn pairsFromStruct(
     allocator: Allocator,
     comptime T: type,
@@ -33,7 +33,6 @@ pub fn pairsFromStruct(
             .key = field.name,
             .value = switch (field_type) {
                 []const u8, []u8 => field_value,
-                comptime_int => try std.fmt.allocPrint(allocator, "{d}", .{field_value}),
                 else => try std.fmt.allocPrint(allocator, "{any}", .{field_value}),
             },
         };
@@ -42,26 +41,47 @@ pub fn pairsFromStruct(
     return pairs;
 }
 
+/// Free the pairs.
+///
+/// Note:
+///
+/// - You don't need to `allocator.free` again after calling this function.
+pub fn freePairs(
+    allocator: Allocator,
+    comptime T: type,
+    pairs: []Pair([]const u8, []const u8),
+) void {
+    const fields = std.meta.fields(T);
+    inline for (fields, 0..) |field, i| {
+        const field_type = field.type;
+        switch (field_type) {
+            []const u8, []u8 => {},
+            else => allocator.free(pairs[i].value),
+        }
+    }
+    allocator.free(pairs);
+}
+
 test pairsFromStruct {
     const test_allocator = std.testing.allocator;
 
     const TestStruct = struct {
-        foo: []const u8,
         hello: []const u8,
+        answer: i64,
     };
     const test_struct = TestStruct{
-        .foo = "bar",
         .hello = "world",
+        .answer = 42,
     };
 
     const pairs = try pairsFromStruct(test_allocator, TestStruct, test_struct);
-    defer test_allocator.free(pairs);
+    defer freePairs(test_allocator, TestStruct, pairs);
 
     try std.testing.expectEqual(pairs.len, 2);
-    try std.testing.expectEqualStrings("foo", pairs[0].key);
-    try std.testing.expectEqualStrings("bar", pairs[0].value);
-    try std.testing.expectEqualStrings("hello", pairs[1].key);
-    try std.testing.expectEqualStrings("world", pairs[1].value);
+    try std.testing.expectEqualStrings("hello", pairs[0].key);
+    try std.testing.expectEqualStrings("world", pairs[0].value);
+    try std.testing.expectEqualStrings("answer", pairs[1].key);
+    try std.testing.expectEqualStrings("42", pairs[1].value);
 }
 
 /// Build query string from pairs.
