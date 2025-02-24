@@ -39,8 +39,8 @@ pub const Client = struct {
     ///
     /// Note:
     ///
-    /// - Remember to free the returned slice using `freeInvoke`.
-    pub fn invokeGet(self: *Client, method: anytype) ![]u8 {
+    /// - Remember to free the returned slice using `ResponseBody.deinit`.
+    pub fn invokeGet(self: *Client, method: anytype) !ResponseBody {
         // build URI.
         const method_name = @typeName(@TypeOf(method));
         const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, method_name, method);
@@ -60,12 +60,10 @@ pub const Client = struct {
         @memcpy(result[0..read_size], response_buf[0..read_size]);
         errdefer self.allocator.free(result);
 
-        return result;
-    }
-
-    /// Free the returned slice.
-    pub fn freeInvoke(self: *Client, result: []u8) void {
-        self.allocator.free(result);
+        return ResponseBody{
+            .allocator = self.allocator,
+            .buf = result,
+        };
     }
 };
 
@@ -86,4 +84,47 @@ fn requestGet(client: *StdClient, uri: Uri) !Request {
     try request.wait();
 
     return request;
+}
+
+const ResponseBody = struct {
+    allocator: Allocator,
+    buf: []u8,
+
+    const parseFromSlice = std.json.parseFromSlice;
+    const Parsed = std.json.Parsed;
+    const Value = std.json.Value;
+    const ParseOptions = std.json.ParseOptions;
+
+    pub fn toJson(
+        self: @This(),
+        options: ParseOptions,
+    ) !Parsed(Value) {
+        return parseFromSlice(Value, self.allocator, self.buf.items, options);
+    }
+
+    pub fn toResponseObject(
+        self: @This(),
+        comptime T: type,
+        options: ParseOptions,
+    ) !Parsed(ResponseObject(T)) {
+        return parseFromSlice(ResponseObject(T), self.allocator, self.buf.items, options);
+    }
+
+    pub fn deinit(self: @This()) void {
+        self.allocator.free(self.buf);
+    }
+};
+
+/// See https://core.telegram.org/bots/api#making-requests.
+fn ResponseObject(comptime T: type) type {
+    // TODO: move `objects.zig` to `telegram` module.
+    const objects = @import("../Bot/objects.zig");
+
+    return struct {
+        ok: bool,
+        result: ?T = null,
+        description: ?[]u8 = null,
+        error_code: ?i32 = null,
+        parameters: ?objects.ResponseParameters = null,
+    };
 }
