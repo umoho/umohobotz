@@ -90,17 +90,24 @@ fn encode(allocator: Allocator, origin: []const u8) ![]u8 {
 test "encode" {
     const allocator = std.testing.allocator;
 
-    const test_cases = [_][]const u8{
-        "Hello World",
-        "你好世界",
-        "Test@#$%^&*()",
-    };
+    const encoded1 = try encode(allocator, "Hello World");
+    defer allocator.free(encoded1);
+    try std.testing.expectEqualStrings(
+        "Hello%20World",
+        encoded1,
+    );
 
-    for (test_cases) |case| {
-        const encoded = try encode(allocator, case);
-        defer allocator.free(encoded);
+    const encoded2 = try encode(allocator, "你好世界");
+    defer allocator.free(encoded2);
+    try std.testing.expectEqualStrings(
+        "%e4%bd%a0%e5%a5%bd%e4%b8%96%e7%95%8c",
+        encoded2,
+    );
 
-        try std.testing.expect(encoded.len > 0);
-        std.debug.print("'{s}' -> '{s}'\n", .{ case, encoded });
-    }
+    const encoded3 = try encode(allocator, "Test@#$%^&*()");
+    defer allocator.free(encoded3);
+    try std.testing.expectEqualStrings(
+        "Test%40%23%24%25%5e%26%2a%28%29",
+        encoded3,
+    );
 }
