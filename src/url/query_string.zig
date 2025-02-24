@@ -23,6 +23,7 @@ pub fn pairsFromStruct(
     const fields = std.meta.fields(T);
     const len = fields.len;
     var pairs = try allocator.alloc(Pair([]const u8, []const u8), len);
+    errdefer allocator.free(pairs);
 
     inline for (fields, 0..) |field, i| {
         const field_value = @field(value, field.name);
