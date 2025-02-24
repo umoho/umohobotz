@@ -28,22 +28,12 @@ pub fn pairsFromStruct(
         const field_value = @field(value, field.name);
         const field_type = @TypeOf(field_value);
 
-        pairs[i] = switch (field_type) {
-            []const u8 => .{
-                .key = field.name,
-                .value = field_value,
-            },
-            []u8 => .{
-                .key = field.name,
-                .value = field_value,
-            },
-            comptime_int => .{
-                .key = field.name,
-                .value = try std.fmt.allocPrint(allocator, "{d}", .{field_value}),
-            },
-            else => .{
-                .key = field.name,
-                .value = try std.fmt.allocPrint(allocator, "{any}", .{field_value}),
+        pairs[i] = .{
+            .key = field.name,
+            .value = switch (field_type) {
+                []const u8, []u8 => field_value,
+                comptime_int => try std.fmt.allocPrint(allocator, "{d}", .{field_value}),
+                else => try std.fmt.allocPrint(allocator, "{any}", .{field_value}),
             },
         };
     }
