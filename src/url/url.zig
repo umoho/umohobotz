@@ -10,7 +10,7 @@ const query_string = @import("query_string.zig");
 ///
 /// - Remember to free the returned URL.
 /// - If `args` is `.{}`, it will not add query string.
-pub fn makeUrl(
+pub fn buildUrl(
     allocator: Allocator,
     api_uri_prefix: []const u8,
     method: []const u8,
@@ -33,10 +33,10 @@ pub fn makeUrl(
     return str.toOwnedSlice();
 }
 
-test makeUrl {
+test buildUrl {
     const allocator = std.testing.allocator;
 
-    const url = try makeUrl(allocator, "https://example.com", "/getUpdates", .{
+    const url = try buildUrl(allocator, "https://example.com", "/getUpdates", .{
         .limit = 100,
         .offset = 200,
     });
@@ -48,7 +48,7 @@ test makeUrl {
         url,
     );
 
-    const url_empty_args = try makeUrl(allocator, "https://example.com", "/getUpdates", .{});
+    const url_empty_args = try buildUrl(allocator, "https://example.com", "/getUpdates", .{});
     defer allocator.free(url_empty_args);
 
     try std.testing.expectEqualSlices(
