@@ -2,6 +2,59 @@ const std = @import("std");
 
 const Allocator = std.mem.Allocator;
 
+/// Pair of key and value.
+pub fn Pair(comptime K: type, comptime V: type) type {
+    return struct {
+        key: K,
+        value: V,
+    };
+}
+
+/// Build query string from pairs.
+///
+/// Note:
+///
+/// - Remember to free the returned string.
+/// - Pairs' key and value will be encoded.
+/// - Keys are not deduplicated.
+pub fn buildQueryString(
+    allocator: Allocator,
+    pairs: []Pair([]const u8, []const u8),
+) ![]u8 {
+    var str = std.ArrayList(u8).init(allocator);
+    defer str.deinit();
+
+    var is_first = true;
+    for (pairs) |pair| {
+        // put '?' if it's the first pair,
+        // put '&' if it's not the first pair.
+        if (is_first) {
+            try str.append('?');
+            is_first = false;
+        } else {
+            try str.append('&');
+        }
+
+        // put encoded key.
+        const encoded_key = try encode(allocator, pair.key);
+        defer allocator.free(encoded_key);
+        try str.appendSlice(encoded_key);
+
+        // put '='.
+        try str.append('=');
+
+        // put encoded value.
+        const encoded_value = try encode(allocator, pair.value);
+        defer allocator.free(encoded_value);
+        try str.appendSlice(encoded_value);
+    }
+    // clear and free if error.
+    // I'm not sure if it's necessary to do this.
+    errdefer str.clearAndFree();
+
+    return str.toOwnedSlice();
+}
+
 pub const QueryString = struct {
     map: std.StringHashMap([]const u8),
 
@@ -67,6 +120,11 @@ test "toOwnedSlice" {
     ));
 }
 
+/// Encode a string to be used in query string.
+///
+/// Note:
+///
+/// - Remember to free the returned string.
 fn encode(allocator: Allocator, origin: []const u8) ![]u8 {
     var str = std.ArrayList(u8).init(allocator);
     defer str.deinit();
