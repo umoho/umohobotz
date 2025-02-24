@@ -77,7 +77,7 @@ pub const Client = struct {
     ///
     /// - Remember to call `request.deinit()` after using the request.
     fn requestGet(client: *StdClient, uri: Uri) !Request {
-        var header_buf: [4096]u8 = undefined;
+        var header_buf: [server_header_buf_size]u8 = undefined;
         var request = try client.open(.GET, uri, .{
             .server_header_buffer = &header_buf,
         });
