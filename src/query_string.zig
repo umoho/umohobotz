@@ -17,9 +17,10 @@ pub fn Pair(comptime K: type, comptime V: type) type {
 /// - Remember to free the returned string.
 /// - Pairs' key and value will be encoded.
 /// - Keys are not deduplicated.
+/// - It adds '?' at the beginning of the query string.
 pub fn buildQueryString(
     allocator: Allocator,
-    pairs: []Pair([]const u8, []const u8),
+    pairs: []const Pair([]const u8, []const u8),
 ) ![]u8 {
     var str = std.ArrayList(u8).init(allocator);
     defer str.deinit();
@@ -53,6 +54,23 @@ pub fn buildQueryString(
     errdefer str.clearAndFree();
 
     return str.toOwnedSlice();
+}
+
+test buildQueryString {
+    const test_allocator = std.testing.allocator;
+
+    const pairs = [_]Pair([]const u8, []const u8){
+        .{ .key = "hello", .value = "你好" },
+        .{ .key = "world", .value = "世界" },
+    };
+
+    const query_string = try buildQueryString(test_allocator, &pairs);
+    defer test_allocator.free(query_string);
+
+    try std.testing.expectEqualStrings(
+        "?hello=%e4%bd%a0%e5%a5%bd&world=%e4%b8%96%e7%95%8c",
+        query_string,
+    );
 }
 
 pub const QueryString = struct {
