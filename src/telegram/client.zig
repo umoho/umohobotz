@@ -52,7 +52,7 @@ pub const Client = struct {
         const uri = try Uri.parse(uri_str);
 
         // send request.
-        var request = try requestGet(&self.client, uri);
+        var request = try self.requestGet(uri);
         defer request.deinit();
 
         // read response.
@@ -69,26 +69,26 @@ pub const Client = struct {
             .buf = result,
         };
     }
+
+    /// Send GET request to the server.
+    ///
+    /// Note:
+    ///
+    /// - Remember to call `request.deinit()` after using the request.
+    fn requestGet(client: *StdClient, uri: Uri) !Request {
+        var header_buf: [4096]u8 = undefined;
+        var request = try client.open(.GET, uri, .{
+            .server_header_buffer = &header_buf,
+        });
+        errdefer request.deinit();
+
+        try request.send();
+        try request.finish();
+        try request.wait();
+
+        return request;
+    }
 };
-
-/// Send GET request to the server.
-///
-/// Note:
-///
-/// - Remember to call `request.deinit()` after using the request.
-fn requestGet(client: *StdClient, uri: Uri) !Request {
-    var header_buf: [4096]u8 = undefined;
-    var request = try client.open(.GET, uri, .{
-        .server_header_buffer = &header_buf,
-    });
-    errdefer request.deinit();
-
-    try request.send();
-    try request.finish();
-    try request.wait();
-
-    return request;
-}
 
 /// The server response.
 ///
