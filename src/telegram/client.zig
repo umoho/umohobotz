@@ -41,8 +41,8 @@ pub const Client = struct {
     ///
     /// Note:
     ///
-    /// - Remember to free the returned slice using `ResponseBody.deinit`.
-    pub fn invokeGet(self: *Client, method: anytype) !ResponseBody {
+    /// - Remember to free the returned slice using `Response.deinit`.
+    pub fn invokeGet(self: *Client, method: anytype) !Response {
         // build URI.
         const method_name = @typeName(@TypeOf(method));
         const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, method_name, method);
@@ -62,7 +62,7 @@ pub const Client = struct {
         @memcpy(result[0..read_size], response_buf[0..read_size]);
         errdefer self.allocator.free(result);
 
-        return ResponseBody{
+        return Response{
             .allocator = self.allocator,
             .buf = result,
         };
@@ -88,7 +88,13 @@ fn requestGet(client: *StdClient, uri: Uri) !Request {
     return request;
 }
 
-const ResponseBody = struct {
+/// The server response.
+///
+/// Note:
+///
+/// - Remember to free the returned slice using my `deinit`.
+/// - It's be created by `Client`.
+const Response = struct {
     allocator: Allocator,
     buf: []u8,
 
@@ -97,6 +103,7 @@ const ResponseBody = struct {
     const Value = std.json.Value;
     const ParseOptions = std.json.ParseOptions;
 
+    /// Parse the response to JSON `Value`.
     pub fn toJson(
         self: @This(),
         options: ParseOptions,
@@ -104,21 +111,23 @@ const ResponseBody = struct {
         return parseFromSlice(Value, self.allocator, self.buf.items, options);
     }
 
+    /// Parse the response to `Object`.
     pub fn toResponseObject(
         self: @This(),
         comptime T: type,
         options: ParseOptions,
-    ) !Parsed(ResponseObject(T)) {
-        return parseFromSlice(ResponseObject(T), self.allocator, self.buf.items, options);
+    ) !Parsed(Object(T)) {
+        return parseFromSlice(Object(T), self.allocator, self.buf.items, options);
     }
 
+    /// Deinitialize the response.
     pub fn deinit(self: @This()) void {
         self.allocator.free(self.buf);
     }
 };
 
 /// See https://core.telegram.org/bots/api#making-requests.
-fn ResponseObject(comptime T: type) type {
+fn Object(comptime T: type) type {
     // TODO: move `objects.zig` to `telegram` module.
     const objects = @import("../Bot/objects.zig");
 
