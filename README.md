@@ -9,7 +9,7 @@ zig build run
 To build a Linux version release binary:
 
 ```sh
-zig build-exe src/main.zig -O ReleaseSmall -fstrip -fsingle-threaded -target x86_64-linux
+zig build -Dtarget=x86_64-linux-gnu
 ```
 
 # TODO List
