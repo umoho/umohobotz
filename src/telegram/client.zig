@@ -122,7 +122,7 @@ pub const Response = struct {
     }
 
     /// Parse the response to `Object`.
-    pub fn toResponseObject(
+    pub fn toObject(
         self: @This(),
         comptime T: type,
         options: ParseOptions,
