@@ -86,17 +86,8 @@ pub const Bot = struct {
                 }
             } else |parse_object_err| {
                 std.debug.print("failed to parse object: {}\n", .{parse_object_err});
-                if (response.toJson(.{})) |parsed_json| {
-                    // print as json.
-                    defer parsed_json.deinit();
-                    std.debug.print("JSON:\n", .{});
-                    parsed_json.value.dump();
-                    std.debug.print("\n", .{});
-                } else |parse_json_err| {
-                    std.debug.print("failed to parse JSON: {}\n", .{parse_json_err});
-                    // print as plain.
-                    std.debug.print("plain:\n{s}\n", .{response.buf});
-                }
+                // print as plain.
+                std.debug.print("plain:\n{s}\n", .{response.buf});
             }
         }
     }
