@@ -58,22 +58,32 @@ pub const Bot = struct {
     ) !void {
         var max_update_id: ?i64 = null;
         while (true) {
+            // get updates from the server.
             const next = if (max_update_id) |id| .{ .offset = id + 1 } else .{};
             const response = try self.getUpdates(next);
             defer response.deinit();
 
+            // parse the response.
             const parsed_object = response.toObject([]objects.Update, .{}) catch |err| {
-                std.debug.print("failed to parse object: {}\n", .{err});
-                std.debug.print("plain:\n{s}\n", .{response.buf});
+                std.log.err("failed to parse object: {}\n", .{err});
+                std.log.err("plain:\n{s}\n", .{response.buf});
                 continue;
             };
             defer parsed_object.deinit();
+            const response_object = parsed_object.value;
 
-            printObjectIfError([]objects.Update, parsed_object.value);
+            // print error if it is an error.
+            if (!response_object.ok and response_object.description != null) {
+                std.log.err(
+                    "an error response from the server: {s}",
+                    .{response_object.description.?},
+                );
+                continue;
+            }
 
-            const updates = parsed_object.value.result orelse continue;
-            std.debug.print("I got {} update(s)\n", .{updates.len});
-
+            // handle unread updates.
+            const updates = response_object.result orelse continue;
+            std.log.debug("I got {} update(s)\n", .{updates.len});
             for (updates) |update| {
                 max_update_id = if (max_update_id) |id|
                     @max(id, update.update_id)
@@ -85,26 +95,3 @@ pub const Bot = struct {
         }
     }
 };
-
-/// Print the error of the object if it is an error.
-fn printObjectIfError(comptime T: type, object: objects.Object(T)) void {
-    // print error.
-    if (!object.ok) {
-        std.debug.print("server response an error:\n", .{});
-        if (object.description) |desc| {
-            std.debug.print("  description: {s}\n", .{desc});
-        }
-        if (object.error_code) |err_code| {
-            std.debug.print("  error_code: {}\n", .{err_code});
-        }
-        if (object.parameters) |params| {
-            std.debug.print("  parameters:\n", .{});
-            if (params.migrate_to_chat_id) |migrate| {
-                std.debug.print("    migrate_to_chat_id: {}\n", .{migrate});
-            }
-            if (params.retry_after) |retry| {
-                std.debug.print("    retry_after: {}\n", .{retry});
-            }
-        }
-    }
-}
