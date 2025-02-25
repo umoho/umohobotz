@@ -39,9 +39,9 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
 
     // log the message.
     if (message.chat.username) |username| {
-        std.log.info("I got a text message from {s}: {s}\n", .{ username, text });
+        std.log.info("I got a text message from {s}: {s}", .{ username, text });
     } else {
-        std.log.info("I got a text message from {d}: {s}\n", .{ message.chat.id, text });
+        std.log.info("I got a text message from {d}: {s}", .{ message.chat.id, text });
     }
 
     // build a response message.
@@ -62,8 +62,8 @@ fn sendMessage(bot: *Bot, chat_id: i64, text: []const u8) void {
         .text = text,
     })) |response| {
         defer response.deinit();
-        std.log.info("response: {s}\n", .{response.buf});
+        std.log.info("response: {s}", .{response.buf});
     } else |err| {
-        std.log.warn("failed to send message: {}\n", .{err});
+        std.log.warn("failed to send message: {}", .{err});
     }
 }

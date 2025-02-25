@@ -68,8 +68,8 @@ pub const Bot = struct {
 
             // parse the response.
             const parsed_object = response.toObject([]objects.Update, .{}) catch |err| {
-                std.log.err("failed to parse object: {}\n", .{err});
-                std.log.err("plain:\n{s}\n", .{response.buf});
+                std.log.err("failed to parse object: {}", .{err});
+                std.log.err("plain:\n{s}", .{response.buf});
                 continue;
             };
             defer parsed_object.deinit();
@@ -86,7 +86,7 @@ pub const Bot = struct {
 
             // handle unread updates.
             const updates = response_object.result orelse continue;
-            std.log.debug("I got {} update(s)\n", .{updates.len});
+            std.log.debug("I got {} update(s)", .{updates.len});
             for (updates) |update| {
                 max_update_id = if (max_update_id) |id|
                     @max(id, update.update_id)
