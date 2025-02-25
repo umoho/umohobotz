@@ -52,7 +52,10 @@ pub const Bot = struct {
     }
 
     /// Get updates from the Telegram Bot API in a loop.
-    pub fn getUpdatesLoop(self: *Bot) !void {
+    pub fn getUpdatesLoop(
+        self: *Bot,
+        handleUpdate: fn (bot: *Bot, update: objects.Update) void,
+    ) !void {
         var max_update_id: ?i64 = null;
         while (true) {
             const next: methods.GetUpdates = if (max_update_id) |id|
@@ -63,20 +66,22 @@ pub const Bot = struct {
             const response = try self.getUpdates(next);
             defer response.deinit();
 
-            if (response.toResponseObject([]objects.Update, .{})) |parsed_object| {
-                // print as object.
+            // read the updates.
+            if (response.toObject([]objects.Update, .{})) |parsed_object| {
                 defer parsed_object.deinit();
                 const object = parsed_object.value;
 
                 printObjectIfError([]objects.Update, object);
 
-                if (object.result) |updates| {
+                if (object.result) |updates| { // server returned success.
                     std.debug.print("I got {} update(s)\n", .{updates.len});
                     // find the max update ID.
                     for (updates) |update| {
                         if ((max_update_id == null) or (update.update_id > max_update_id.?)) {
                             max_update_id = update.update_id;
                         }
+
+                        handleUpdate(self, update);
                     }
                 }
             } else |parse_object_err| {
