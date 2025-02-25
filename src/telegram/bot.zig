@@ -58,36 +58,29 @@ pub const Bot = struct {
     ) !void {
         var max_update_id: ?i64 = null;
         while (true) {
-            const next: methods.GetUpdates = if (max_update_id) |id|
-                .{ .offset = id + 1 }
-            else
-                .{};
-
+            const next = if (max_update_id) |id| .{ .offset = id + 1 } else .{};
             const response = try self.getUpdates(next);
             defer response.deinit();
 
-            // read the updates.
-            if (response.toObject([]objects.Update, .{})) |parsed_object| {
-                defer parsed_object.deinit();
-                const object = parsed_object.value;
-
-                printObjectIfError([]objects.Update, object);
-
-                if (object.result) |updates| { // server returned success.
-                    std.debug.print("I got {} update(s)\n", .{updates.len});
-                    // find the max update ID.
-                    for (updates) |update| {
-                        if ((max_update_id == null) or (update.update_id > max_update_id.?)) {
-                            max_update_id = update.update_id;
-                        }
-
-                        handleUpdate(self, update);
-                    }
-                }
-            } else |parse_object_err| {
-                std.debug.print("failed to parse object: {}\n", .{parse_object_err});
-                // print as plain.
+            const parsed_object = response.toObject([]objects.Update, .{}) catch |err| {
+                std.debug.print("failed to parse object: {}\n", .{err});
                 std.debug.print("plain:\n{s}\n", .{response.buf});
+                continue;
+            };
+            defer parsed_object.deinit();
+
+            printObjectIfError([]objects.Update, parsed_object.value);
+
+            const updates = parsed_object.value.result orelse continue;
+            std.debug.print("I got {} update(s)\n", .{updates.len});
+
+            for (updates) |update| {
+                max_update_id = if (max_update_id) |id|
+                    @max(id, update.update_id)
+                else
+                    update.update_id;
+
+                handleUpdate(self, update);
             }
         }
     }
