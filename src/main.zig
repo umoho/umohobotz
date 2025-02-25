@@ -2,6 +2,8 @@ const std = @import("std");
 
 const Bot = @import("telegram/bot.zig").Bot;
 
+const objects = @import("telegram/objects.zig");
+const methods = @import("telegram/methods.zig");
 pub fn main() !void {
     // make allocator.
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -19,5 +21,20 @@ pub fn main() !void {
     var bot = try Bot.init(allocator, bot_token);
     defer bot.deinit();
 
-    try bot.getUpdatesLoop();
+    try bot.getUpdatesLoop(handleUpdate);
+}
+
+fn handleUpdate(bot: *Bot, update: objects.Update) !void {
+    if (update.message) |message| {
+        if (message.text) |text| {
+            std.debug.print("I got a text message: {s}\n", .{text});
+
+            // send a message to the user.
+            _ = try bot.invokeGet(methods.SendMessage{
+                // .chat_id = .{ .integer = message.chat.id },
+                .chat_id = message.chat.id,
+                .text = "I got your message",
+            });
+        }
+    }
 }
