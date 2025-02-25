@@ -28,8 +28,6 @@ pub fn main() !void {
 fn handleUpdate(bot: *Bot, update: objects.Update) void {
     const message = update.message orelse {
         std.log.warn("update message is null: {any}", .{update});
-        // tell the user we can't handle this update.
-        sendMessage(bot, update.message.chat.id, "I can't handle this update");
         return;
     };
     const text = message.text orelse {

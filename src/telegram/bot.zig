@@ -59,7 +59,10 @@ pub const Bot = struct {
         var max_update_id: ?i64 = null;
         while (true) {
             // get updates from the server.
-            const next = if (max_update_id) |id| .{ .offset = id + 1 } else .{};
+            const next: methods.GetUpdates = if (max_update_id) |id|
+                .{ .offset = id + 1 }
+            else
+                .{};
             const response = try self.getUpdates(next);
             defer response.deinit();
 
