@@ -78,6 +78,50 @@ pub const Client = struct {
         };
     }
 
+    /// Send POST request to Telegram Bot API.
+    ///
+    /// Note:
+    ///
+    /// - Remember to free the returned slice using `Response.deinit`.
+    pub fn invokePost(self: *Client, method: anytype) !Response {
+        // build URI.
+        // the method name includes '.',
+        // we should take the last camelCase name.
+        const method_name = @typeName(@TypeOf(method));
+        const last_dot_index = std.mem.lastIndexOf(u8, method_name, ".");
+        const last_name = if (last_dot_index) |index|
+            method_name[index + 1 ..]
+        else
+            method_name;
+        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, method);
+        defer self.allocator.free(uri_str);
+        const uri = try Uri.parse(uri_str);
+
+        // build body.
+        var body_buf = std.ArrayList(u8).init(self.allocator);
+        defer body_buf.deinit();
+        try std.json.stringify(method, .{}, body_buf.writer());
+        const body = body_buf.toOwnedSlice();
+
+        // send request.
+        var request = try requestPost(&self.client, uri, body);
+        defer request.deinit();
+
+        // read response.
+        var response_buf: [response_buf_size]u8 = undefined;
+        const read_size = try request.readAll(&response_buf);
+
+        // let buffer be owned.
+        var result = try self.allocator.alloc(u8, read_size);
+        @memcpy(result[0..read_size], response_buf[0..read_size]);
+        errdefer self.allocator.free(result);
+
+        return Response{
+            .allocator = self.allocator,
+            .buf = result,
+        };
+    }
+
     /// Send GET request to the server.
     ///
     /// Note:
@@ -92,6 +136,32 @@ pub const Client = struct {
 
         try request.send();
         try request.finish();
+        try request.wait();
+
+        return request;
+    }
+
+    /// Send POST request to the server.
+    ///
+    /// Note:
+    ///
+    /// - Remember to call `request.deinit()` after using the request.
+    fn requestPost(client: *StdClient, uri: Uri, body: []const u8) !Request {
+        var header_buf: [server_header_buf_size]u8 = undefined;
+        var request = try client.open(.POST, uri, .{
+            .server_header_buffer = &header_buf,
+        });
+        errdefer request.deinit();
+
+        // set content type to `application/json`.
+        request.headers.content_type = .{ .override = "application/json" };
+
+        // `request.writeAll` will use this.
+        request.transfer_encoding = .{ .content_length = body.len };
+
+        try request.send();
+        try request.finish();
+        try request.writeAll(body);
         try request.wait();
 
         return request;
