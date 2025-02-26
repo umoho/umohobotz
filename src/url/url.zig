@@ -23,7 +23,7 @@ pub fn buildUrl(
     try str.appendSlice(method);
 
     const pairs = try query_string.pairsFromStruct(allocator, @TypeOf(args), args);
-    defer query_string.freePairs(allocator, @TypeOf(args), pairs);
+    defer query_string.freePairs(allocator, pairs);
 
     const qs = try query_string.buildQueryString(allocator, pairs);
     defer allocator.free(qs);
