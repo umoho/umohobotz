@@ -81,6 +81,10 @@ fn addPair(
     key: []const u8,
     value: anytype,
 ) !void {
+    if (pair_index.* >= pairs.len) {
+        return error.IndexOutOfBounds;
+    }
+
     const T = @TypeOf(value);
     pairs[pair_index.*] = .{
         .key = key,
