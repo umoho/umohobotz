@@ -4,8 +4,20 @@ const Allocator = std.mem.Allocator;
 
 /// Pair of key and value.
 pub const Pair = struct {
+    /// Field name.
     key: []const u8,
+
+    /// Field value.
+    ///
+    /// Note:
+    ///
+    /// - If the type of the value is not `[]const u8`,
+    ///   it will be converted to `[]const u8` by `std.fmt.allocPrint`.
+    /// - If the value is from `allocPrint`, it will be freed by `freePairs`.
     value: []const u8,
+
+    /// Means the value is from `allocPrint`.
+    allocated: bool,
 };
 
 /// Build pairs from a struct.
@@ -13,30 +25,75 @@ pub const Pair = struct {
 /// Note:
 ///
 /// - Remember to free the returned pairs by `freePairs`.
+/// - If a field is optional and its value is `null`, it will be ignored.
 pub fn pairsFromStruct(
     allocator: Allocator,
     comptime T: type,
     value: T,
 ) ![]Pair {
     const fields = std.meta.fields(T);
-    const len = fields.len;
-    var pairs = try allocator.alloc(Pair, len);
+
+    // count non-optional fields for the allocation.
+    comptime var valid_fields = 0;
+    inline for (fields) |field| {
+        if (@typeInfo(@TypeOf(@field(value, field.name))) != .Optional) {
+            valid_fields += 1;
+        }
+    }
+
+    const pairs = try allocator.alloc(Pair, valid_fields);
     errdefer allocator.free(pairs);
 
-    inline for (fields, 0..) |field, i| {
+    var pair_index: usize = 0;
+    inline for (fields) |field| {
         const field_value = @field(value, field.name);
         const field_type = @TypeOf(field_value);
 
-        pairs[i] = .{
-            .key = field.name,
-            .value = switch (field_type) {
-                []const u8, []u8 => field_value,
-                else => try std.fmt.allocPrint(allocator, "{any}", .{field_value}),
-            },
-        };
+        if (@typeInfo(field_type) == .Optional) {
+            // add pair, or do nothing if `field_value` is null.
+            if (field_value) |actual_value| try addPair(
+                allocator,
+                pairs,
+                &pair_index,
+                field.name,
+                actual_value,
+            );
+        } else {
+            // add pair, if not optional.
+            try addPair(
+                allocator,
+                pairs,
+                &pair_index,
+                field.name,
+                field_value,
+            );
+        }
     }
 
     return pairs;
+}
+
+/// Add a pair to the pairs, and increment the pair index.
+fn addPair(
+    allocator: Allocator,
+    pairs: []Pair,
+    pair_index: *usize,
+    key: []const u8,
+    value: anytype,
+) !void {
+    const T = @TypeOf(value);
+    pairs[pair_index.*] = .{
+        .key = key,
+        .value = switch (T) {
+            []const u8, []u8 => value,
+            else => try std.fmt.allocPrint(allocator, "{any}", .{value}),
+        },
+        .allocated = switch (T) {
+            []const u8, []u8 => false,
+            else => true,
+        },
+    };
+    pair_index.* += 1;
 }
 
 /// Free the pairs.
@@ -44,17 +101,10 @@ pub fn pairsFromStruct(
 /// Note:
 ///
 /// - You don't need to `allocator.free` again after calling this function.
-pub fn freePairs(
-    allocator: Allocator,
-    comptime T: type,
-    pairs: []Pair,
-) void {
-    const fields = std.meta.fields(T);
-    inline for (fields, 0..) |field, i| {
-        const field_type = field.type;
-        switch (field_type) {
-            []const u8, []u8 => {},
-            else => allocator.free(pairs[i].value),
+pub fn freePairs(allocator: Allocator, pairs: []Pair) void {
+    for (pairs) |pair| {
+        if (pair.allocated) {
+            allocator.free(pair.value);
         }
     }
     allocator.free(pairs);
@@ -65,15 +115,17 @@ test pairsFromStruct {
 
     const TestStruct = struct {
         hello: []const u8,
+        none: ?bool,
         answer: i64,
     };
     const test_struct = TestStruct{
         .hello = "world",
+        .none = null,
         .answer = 42,
     };
 
     const pairs = try pairsFromStruct(test_allocator, TestStruct, test_struct);
-    defer freePairs(test_allocator, TestStruct, pairs);
+    defer freePairs(test_allocator, pairs);
 
     try std.testing.expectEqual(pairs.len, 2);
     try std.testing.expectEqualStrings("hello", pairs[0].key);
