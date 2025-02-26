@@ -33,22 +33,13 @@ pub const Bot = struct {
         self.client.deinit();
     }
 
-    /// Invoke a method of the Telegram Bot API.
-    ///
-    /// Note:
-    ///
-    /// - Remember to call `Response.deinit` after using.
-    pub fn invokeGet(self: *Bot, method_struct: anytype) !Response {
-        return self.client.invokeGet(method_struct);
-    }
-
     /// Get updates from the Telegram Bot API.
     ///
     /// Note:
     ///
     /// - Remember to call `Response.deinit` after using.
     pub fn getUpdates(self: *Bot, method_struct: methods.GetUpdates) !Response {
-        return self.client.invokeGet(method_struct);
+        return self.client.invokePost(method_struct);
     }
 
     /// Get updates from the Telegram Bot API in a loop.

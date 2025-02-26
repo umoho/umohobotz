@@ -93,7 +93,7 @@ pub const Client = struct {
             method_name[index + 1 ..]
         else
             method_name;
-        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, method);
+        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, .{});
         defer self.allocator.free(uri_str);
         const uri = try Uri.parse(uri_str);
 
@@ -101,7 +101,7 @@ pub const Client = struct {
         var body_buf = std.ArrayList(u8).init(self.allocator);
         defer body_buf.deinit();
         try std.json.stringify(method, .{}, body_buf.writer());
-        const body = body_buf.toOwnedSlice();
+        const body = body_buf.items;
 
         // send request.
         var request = try requestPost(&self.client, uri, body);
@@ -160,8 +160,8 @@ pub const Client = struct {
         request.transfer_encoding = .{ .content_length = body.len };
 
         try request.send();
-        try request.finish();
         try request.writeAll(body);
+        try request.finish();
         try request.wait();
 
         return request;
