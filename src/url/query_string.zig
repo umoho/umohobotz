@@ -3,12 +3,10 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 /// Pair of key and value.
-pub fn Pair(comptime K: type, comptime V: type) type {
-    return struct {
-        key: K,
-        value: V,
-    };
-}
+pub const Pair = struct {
+    key: []const u8,
+    value: []const u8,
+};
 
 /// Build pairs from a struct.
 ///
@@ -19,10 +17,10 @@ pub fn pairsFromStruct(
     allocator: Allocator,
     comptime T: type,
     value: T,
-) ![]Pair([]const u8, []const u8) {
+) ![]Pair {
     const fields = std.meta.fields(T);
     const len = fields.len;
-    var pairs = try allocator.alloc(Pair([]const u8, []const u8), len);
+    var pairs = try allocator.alloc(Pair, len);
     errdefer allocator.free(pairs);
 
     inline for (fields, 0..) |field, i| {
@@ -49,7 +47,7 @@ pub fn pairsFromStruct(
 pub fn freePairs(
     allocator: Allocator,
     comptime T: type,
-    pairs: []Pair([]const u8, []const u8),
+    pairs: []Pair,
 ) void {
     const fields = std.meta.fields(T);
     inline for (fields, 0..) |field, i| {
@@ -94,7 +92,7 @@ test pairsFromStruct {
 /// - It adds '?' at the beginning of the query string.
 pub fn buildQueryString(
     allocator: Allocator,
-    pairs: []const Pair([]const u8, []const u8),
+    pairs: []const Pair,
 ) ![]u8 {
     var str = std.ArrayList(u8).init(allocator);
     defer str.deinit();
@@ -133,7 +131,7 @@ pub fn buildQueryString(
 test buildQueryString {
     const test_allocator = std.testing.allocator;
 
-    const pairs = [_]Pair([]const u8, []const u8){
+    const pairs = [_]Pair{
         .{ .key = "hello", .value = "你好" },
         .{ .key = "world", .value = "世界" },
     };
