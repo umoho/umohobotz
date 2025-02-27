@@ -40,30 +40,12 @@ pub const Client = struct {
         self.client.deinit();
     }
 
-    /// Send GET request to Telegram Bot API.
+    /// Read response from request and return owned buffer.
     ///
     /// Note:
     ///
     /// - Remember to free the returned slice using `Response.deinit`.
-    pub fn invokeGet(self: *Client, method: anytype) !Response {
-        // build URI.
-        // the method name includes '.',
-        // we should take the last camelCase name.
-        const method_name = @typeName(@TypeOf(method));
-        const last_dot_index = std.mem.lastIndexOf(u8, method_name, ".");
-        const last_name = if (last_dot_index) |index|
-            method_name[index + 1 ..]
-        else
-            method_name;
-        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, method);
-        defer self.allocator.free(uri_str);
-        const uri = try Uri.parse(uri_str);
-
-        // send request.
-        var request = try requestGet(&self.client, uri);
-        defer request.deinit();
-
-        // read response.
+    fn readResponse(self: *Client, request: *Request) !Response {
         var response_buf: [response_buf_size]u8 = undefined;
         const read_size = try request.readAll(&response_buf);
 
@@ -78,48 +60,54 @@ pub const Client = struct {
         };
     }
 
+    /// Extract method name from type name
+    fn getMethodName(method_name: []const u8) []const u8 {
+        const last_dot_index = std.mem.lastIndexOf(u8, method_name, ".");
+        return if (last_dot_index) |index|
+            method_name[index + 1 ..]
+        else
+            method_name;
+    }
+
+    /// Send GET request to Telegram Bot API.
+    ///
+    /// Note:
+    ///
+    /// - Remember to free the returned slice using `Response.deinit`.
+    pub fn invokeGet(self: *Client, method: anytype) !Response {
+        const method_name = @typeName(@TypeOf(method));
+        const last_name = getMethodName(method_name);
+        const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, method);
+        defer self.allocator.free(uri_str);
+        const uri = try Uri.parse(uri_str);
+
+        var request = try requestGet(&self.client, uri);
+        defer request.deinit();
+
+        return try self.readResponse(&request);
+    }
+
     /// Send POST request to Telegram Bot API.
     ///
     /// Note:
     ///
     /// - Remember to free the returned slice using `Response.deinit`.
     pub fn invokePost(self: *Client, method: anytype) !Response {
-        // build URI.
-        // the method name includes '.',
-        // we should take the last camelCase name.
         const method_name = @typeName(@TypeOf(method));
-        const last_dot_index = std.mem.lastIndexOf(u8, method_name, ".");
-        const last_name = if (last_dot_index) |index|
-            method_name[index + 1 ..]
-        else
-            method_name;
+        const last_name = getMethodName(method_name);
         const uri_str = try url.buildUrl(self.allocator, self.api_uri_prefix, last_name, .{});
         defer self.allocator.free(uri_str);
         const uri = try Uri.parse(uri_str);
 
-        // build body.
         var body_buf = std.ArrayList(u8).init(self.allocator);
         defer body_buf.deinit();
         try std.json.stringify(method, .{}, body_buf.writer());
         const body = body_buf.items;
 
-        // send request.
         var request = try requestPost(&self.client, uri, body);
         defer request.deinit();
 
-        // read response.
-        var response_buf: [response_buf_size]u8 = undefined;
-        const read_size = try request.readAll(&response_buf);
-
-        // let buffer be owned.
-        var result = try self.allocator.alloc(u8, read_size);
-        @memcpy(result[0..read_size], response_buf[0..read_size]);
-        errdefer self.allocator.free(result);
-
-        return Response{
-            .allocator = self.allocator,
-            .buf = result,
-        };
+        return try self.readResponse(&request);
     }
 
     /// Send GET request to the server.
