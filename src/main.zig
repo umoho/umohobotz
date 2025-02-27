@@ -57,7 +57,7 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
 }
 
 fn sendMessage(bot: *Bot, chat_id: i64, text: []const u8) void {
-    if (bot.invokeGet(methods.SendMessage{
+    if (bot.client.invokeGet(methods.SendMessage{
         .chat_id = chat_id,
         .text = text,
     })) |response| {
