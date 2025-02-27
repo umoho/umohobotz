@@ -27,3 +27,4 @@ zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseSmall
 - [ ] Change `Bot.invoke` to just input content because we can get the method by content's type.
 - [ ] Handle updates.
 - [ ] Make a logger.
+- [ ] Build a OpenRouter API client.
