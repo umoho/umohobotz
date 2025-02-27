@@ -12,6 +12,12 @@ To build a Linux version release binary:
 zig build -Dtarget=x86_64-linux-gnu
 ```
 
+To build a size-optimized Linux release binary:
+
+```sh
+zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseSmall
+```
+
 # TODO List
 
 - [ ] Add many objects.
