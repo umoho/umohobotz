@@ -15,7 +15,8 @@ pub const BaseClient = struct {
     const Header = std.http.Header;
 
     const server_header_buf_size = 4096;
-    const response_buf_size = 1024 * 1024;
+    // TODO: let caller can set the buffer size?
+    const response_buf_size = 8 * 1024 * 1024; // 8MB
 
     /// Read response from request and return owned buffer.
     ///
