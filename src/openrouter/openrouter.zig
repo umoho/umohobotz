@@ -31,7 +31,12 @@ pub const OpenRouter = struct {
         const response = try self.client.sendRequest(.completion, request);
         defer response.deinit();
 
-        return response.to(responses.Completion, .{});
+        return response.to(responses.Completion, .{
+            // NOTE: ignore unknown fields, because the response field is not complete.
+            .ignore_unknown_fields = true,
+            // FIXME: if not set, segfault will happen when print the response.
+            .allocate = .alloc_always,
+        });
     }
 
     pub fn chatCompletion(
@@ -41,6 +46,11 @@ pub const OpenRouter = struct {
         const response = try self.client.sendRequest(.chat_completion, request);
         defer response.deinit();
 
-        return response.to(responses.ChatCompletion, .{});
+        return response.to(responses.ChatCompletion, .{
+            // NOTE: ignore unknown fields, because the response field is not complete.
+            .ignore_unknown_fields = true,
+            // FIXME: if not set, segfault will happen when print the response.
+            .allocate = .alloc_always,
+        });
     }
 };
