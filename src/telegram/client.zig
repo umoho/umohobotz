@@ -14,9 +14,6 @@ pub const Client = struct {
     const query_string = @import("../url/query_string.zig");
     const url = @import("../url/url.zig");
 
-    const server_header_buf_size = 4096;
-    const response_buf_size = 1024 * 1024;
-
     /// Initialize the client.
     pub fn init(allocator: Allocator, token: []const u8) !Client {
         return Client{
@@ -49,15 +46,18 @@ pub const Client = struct {
     ///
     /// - Remember to free the returned slice using `Response.deinit`.
     pub fn invokeGet(self: *Client, method: anytype) !Response {
+        // build the URI.
         const method_name = @typeName(@TypeOf(method));
         const last_name = getMethodName(method_name);
         const uri_str = try url.buildUrl(self.base.allocator, self.api_uri_prefix, last_name, method);
         defer self.base.allocator.free(uri_str);
         const uri = try Uri.parse(uri_str);
 
+        // send the request.
         var request = try self.base.requestGet(uri);
         defer request.deinit();
 
+        // read the response.
         const base_response = try self.base.readResponse(&request);
         return Response{ .base = base_response };
     }
@@ -68,20 +68,24 @@ pub const Client = struct {
     ///
     /// - Remember to free the returned slice using `Response.deinit`.
     pub fn invokePost(self: *Client, method: anytype) !Response {
+        // build the URI.
         const method_name = @typeName(@TypeOf(method));
         const last_name = getMethodName(method_name);
         const uri_str = try url.buildUrl(self.base.allocator, self.api_uri_prefix, last_name, .{});
         defer self.base.allocator.free(uri_str);
         const uri = try Uri.parse(uri_str);
 
+        // build the body.
         var body_buf = std.ArrayList(u8).init(self.base.allocator);
         defer body_buf.deinit();
         try std.json.stringify(method, .{}, body_buf.writer());
         const body = body_buf.items;
 
+        // send the request.
         var request = try self.base.requestPost(uri, body);
         defer request.deinit();
 
+        // read the response.
         const base_response = try self.base.readResponse(&request);
         return Response{ .base = base_response };
     }
