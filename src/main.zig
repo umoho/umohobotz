@@ -62,7 +62,7 @@ fn sendMessage(bot: *Bot, chat_id: i64, text: []const u8) void {
         .text = text,
     })) |response| {
         defer response.deinit();
-        std.log.info("response: {s}", .{response.buf});
+        std.log.info("response: {s}", .{response.base.buf});
     } else |err| {
         std.log.warn("failed to send message: {}", .{err});
     }
