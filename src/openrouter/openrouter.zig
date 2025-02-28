@@ -24,11 +24,14 @@ pub const OpenRouter = struct {
         self.client.deinit();
     }
 
-    pub fn completion(self: *OpenRouter, request: requests.Completion) !Parsed(responses.Completion) {
+    pub fn completion(
+        self: *OpenRouter,
+        request: requests.Completion,
+    ) !Parsed(responses.Completion) {
         const response = try self.client.sendRequest(.completion, request);
         defer response.deinit();
 
-        return response.to(responses.Completion);
+        return response.to(responses.Completion, .{});
     }
 
     pub fn chatCompletion(
