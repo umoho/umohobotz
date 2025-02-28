@@ -11,7 +11,6 @@ pub const Client = struct {
 
     const Uri = std.Uri;
     const Request = std.http.Client.Request;
-    const StdClient = std.http.Client;
     const Header = std.http.Header;
 
     const BaseClient = @import("../http/client.zig").BaseClient;
@@ -26,11 +25,11 @@ pub const Client = struct {
     /// Note:
     ///
     /// - Remember to call `deinit` after using the client.
-    pub fn init(allocator: std.mem.Allocator, api_key: []const u8) Client {
+    pub fn init(allocator: Allocator, api_key: []const u8) Client {
         return .{
             .base = .{
                 .allocator = allocator,
-                .client = StdClient.init(allocator),
+                .client = .{ .allocator = allocator },
             },
             .api_key = api_key,
         };
@@ -47,16 +46,21 @@ pub const Client = struct {
     ///
     /// - Remember to free the returned slice using `Response.deinit`.
     pub fn sendRequest(self: *Client, method: Method, request: anytype) !Response {
-        const uri = method.url;
-        const body = try std.json.stringify(request, .{ .allocator = self.base.allocator });
-        defer self.base.allocator.free(body);
+        const uri = try Uri.parse(method.getMethodAndUrl().url);
 
-        const returned_request = switch (method.method) {
+        var body_buf = std.ArrayList(u8).init(self.base.allocator);
+        defer body_buf.deinit();
+        try std.json.stringify(request, .{}, body_buf.writer());
+        const body = body_buf.items;
+
+        var returned_request = switch (method.getMethodAndUrl().method) {
             .POST => try self.base.requestPost(uri, body),
             else => unreachable, // TODO: implement GET.
         };
 
-        return try self.base.readResponse(&returned_request);
+        return .{
+            .base = try self.base.readResponse(&returned_request),
+        };
     }
 
     /// Send POST request to the server.
@@ -174,16 +178,25 @@ pub const Response = struct {
     }
 };
 
-const Method = enum(struct {
-    method: std.http.Method,
-    url: []const u8,
-}) {
-    completion = .{
-        .method = .POST,
-        .url = "https://openrouter.ai/api/v1/completions",
-    },
-    chat_completion = .{
-        .method = .POST,
-        .url = "https://openrouter.ai/api/v1/chat/completions",
-    },
+const Method = enum {
+    completion,
+    chat_completion,
+
+    const MethodAndUrl = struct {
+        method: std.http.Method,
+        url: []const u8,
+    };
+
+    pub fn getMethodAndUrl(self: Method) MethodAndUrl {
+        return switch (self) {
+            .completion => .{
+                .method = .POST,
+                .url = "https://openrouter.ai/api/v1/completions",
+            },
+            .chat_completion => .{
+                .method = .POST,
+                .url = "https://openrouter.ai/api/v1/chat/completions",
+            },
+        };
+    }
 };

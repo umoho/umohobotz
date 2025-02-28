@@ -6,7 +6,7 @@ pub const OpenRouter = struct {
     allocator: Allocator,
     client: Client,
 
-    const Parsed = @import("client.zig").Parsed;
+    const Parsed = std.json.Parsed;
 
     const Client = @import("client.zig").Client;
 
@@ -41,6 +41,6 @@ pub const OpenRouter = struct {
         const response = try self.client.sendRequest(.chat_completion, request);
         defer response.deinit();
 
-        return response.to(request, .{});
+        return response.to(responses.ChatCompletion, .{});
     }
 };
