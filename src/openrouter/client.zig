@@ -53,10 +53,15 @@ pub const Client = struct {
         try std.json.stringify(request, .{}, body_buf.writer());
         const body = body_buf.items;
 
-        var returned_request = switch (method.getMethodAndUrl().method) {
-            .POST => try self.base.requestPost(uri, body),
-            else => unreachable, // TODO: implement GET.
-        };
+        // TODO: use switch after GET is implemented.
+        // var returned_request = switch (method.getMethodAndUrl().method) {
+        //     .POST => try self.requestPost(uri, body),
+        //     else => unreachable, // TODO: implement GET.
+        // };
+        // defer returned_request.deinit();
+
+        var returned_request = try self.requestPost(uri, body);
+        defer returned_request.deinit();
 
         return .{
             .base = try self.base.readResponse(&returned_request),
@@ -80,12 +85,16 @@ pub const Client = struct {
         request.headers.content_type = .{ .override = "application/json" };
 
         // set authorization header.
-        const auth_header = try self.setAuthorization(request);
+        const auth_header = try self.setAuthorization(&request);
         defer self.base.allocator.free(auth_header);
 
         // set rankings headers.
-        const owned_headers = try self.setRankingsHeaders(request);
+        const owned_headers = try self.setRankingsHeaders(&request);
         defer self.base.allocator.free(owned_headers);
+
+        // set accept encoding header.
+        // NOTE: seems Zig can't handle GZIP, so we use deflate instead.
+        request.headers.accept_encoding = .{ .override = "deflate" };
 
         // `request.writeAll` will use this.
         request.transfer_encoding = .{ .content_length = body.len };
@@ -107,7 +116,7 @@ pub const Client = struct {
     fn setAuthorization(self: *Client, request: *Request) ![]const u8 {
         const auth_header = try std.fmt.allocPrint(
             self.base.allocator,
-            "Bearer {}",
+            "Bearer {s}",
             .{self.api_key},
         );
 
@@ -133,7 +142,7 @@ pub const Client = struct {
             try header_list.append(.{ .name = "X-Title", .value = title });
         }
 
-        const owned_headers = header_list.toOwnedSlice();
+        const owned_headers = try header_list.toOwnedSlice();
         request.extra_headers = owned_headers;
 
         return owned_headers;
