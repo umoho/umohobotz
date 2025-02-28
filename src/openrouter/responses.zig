@@ -7,3 +7,13 @@ pub const Completion = struct {
         finish_reason: ?[]const u8 = null,
     } = null,
 };
+
+pub const ChatCompletion = struct {
+    id: ?[]const u8 = null,
+    choices: ?[]const struct {
+        message: struct {
+            role: ?[]const u8 = null,
+            content: ?[]const u8 = null,
+        },
+    } = null,
+};

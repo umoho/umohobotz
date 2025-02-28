@@ -30,4 +30,14 @@ pub const OpenRouter = struct {
 
         return response.to(responses.Completion);
     }
+
+    pub fn chatCompletion(
+        self: *OpenRouter,
+        request: requests.ChatCompletion,
+    ) !Parsed(responses.ChatCompletion) {
+        const response = try self.client.sendRequest(.chat_completion, request);
+        defer response.deinit();
+
+        return response.to(request, .{});
+    }
 };
