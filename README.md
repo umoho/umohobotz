@@ -23,8 +23,7 @@ zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseSmall
 - [ ] Add many objects.
 - [ ] Add many methods.
 - [ ] No wait more if timeout.
-- [ ] Tests don't print but assume/assert.
-- [ ] Change `Bot.invoke` to just input content because we can get the method by content's type.
-- [ ] Handle updates.
+- [x] Handle updates.
 - [ ] Make a logger.
-- [ ] Build a OpenRouter API client.
+- [x] Build a OpenRouter API client.
+- [ ] Check grammar in prompt.txt.
