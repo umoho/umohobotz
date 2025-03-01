@@ -35,7 +35,7 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
     const text = message.text orelse {
         std.log.warn("message text is null: {any}", .{message});
         // tell the user we can't handle this message.
-        sendMessage(bot, message.chat.id, "I can't handle this message");
+        // sendMessage(bot, message.chat.id, "I can't handle this message");
         return;
     };
 
@@ -49,13 +49,20 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
     // get reply from openrouter.
     const reply_text = getReply(bot.allocator, text) catch |err| {
         std.log.warn("failed to get reply: {}", .{err});
-        sendMessage(bot, message.chat.id, "I can't reply to your message");
+        // sendMessage(bot, message.chat.id, "I can't reply to your message");
         return;
     } orelse {
-        sendMessage(bot, message.chat.id, "I can't reply to your message");
+        std.log.warn("failed to get reply: text is null", .{});
+        // sendMessage(bot, message.chat.id, "I can't reply to your message");
         return;
     };
     defer bot.allocator.free(reply_text);
+
+    if (reply_text.len == 0) {
+        std.log.warn("failed to get reply: text is empty", .{});
+        // sendMessage(bot, message.chat.id, "I can't reply to your message");
+        return;
+    }
 
     // send a message back to the user.
     sendMessage(bot, message.chat.id, reply_text);
@@ -93,10 +100,16 @@ fn getReply(
 
     const reply = try openrouter.chatCompletion(.{
         .model = "deepseek/deepseek-r1:free",
-        .messages = &.{.{
-            .role = "user",
-            .content = text,
-        }},
+        .messages = &.{
+            .{
+                .role = "system",
+                .content = @embedFile("prompt.txt"), // this file is gitignored.
+            },
+            .{
+                .role = "user",
+                .content = text,
+            },
+        },
     });
     defer reply.deinit();
 
