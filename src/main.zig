@@ -103,7 +103,7 @@ fn getReply(
         .messages = &.{
             .{
                 .role = "system",
-                .content = @embedFile("prompt.txt"), // this file is gitignored.
+                .content = @embedFile("prompt.txt"),
             },
             .{
                 .role = "user",
