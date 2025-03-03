@@ -58,13 +58,16 @@ pub const Bot = struct {
             defer response.deinit();
 
             // parse the response.
-            const parsed_object = response.toObject([]objects.Update, .{}) catch |err| {
+            const parsed_object = response.toObject([]objects.Update, .{
+                .ignore_unknown_fields = true,
+            }) catch |err| {
                 std.log.err("failed to parse object: {}", .{err});
                 std.log.err("plain:\n{s}", .{response.base.buf});
                 // skip this update by: increase the offset.
                 // FIXME: it works ok if it's not the first time getting updates from the server,
                 // but it doesn't work if it's the first time because the `max_update_id` is `null`.
                 std.log.debug("max_update_id: {?}", .{max_update_id});
+                // TODO: remove this?
                 if (max_update_id) |id| max_update_id = id + 1;
                 continue;
             };
