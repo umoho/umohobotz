@@ -78,12 +78,32 @@ pub const DateTime = struct {
             .second = second,
         };
     }
+
+    /// Format DateTime as 'YYYY-MM-DD HH:MM:SS.NNN UTC'.
+    ///
+    /// Note:
+    ///
+    /// - Remember to free the returned string.
+    /// - No leading 0.
+    pub fn toText(self: @This(), allocator: std.mem.Allocator) ![]const u8 {
+        // format the text
+        return std.fmt.allocPrint(allocator, "{}-{}-{} {}:{}:{}.{} UTC", .{
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.nanosecond,
+        });
+    }
 };
 
 test "DateTime.fromUnixTimestamp" {
     // 2020-02-29 23:59:59 UTC
     const timestamp = 1583020799;
     const dt = DateTime.fromUnixTimestamp(timestamp);
+
     std.debug.assert(dt.year == 2020);
     std.debug.assert(dt.month == 2);
     std.debug.assert(dt.day == 29);
@@ -91,4 +111,8 @@ test "DateTime.fromUnixTimestamp" {
     std.debug.assert(dt.minute == 59);
     std.debug.assert(dt.second == 59);
     std.debug.assert(dt.nanosecond == 0);
+
+    const text = try dt.toText(std.testing.allocator);
+    defer std.testing.allocator.free(text);
+    std.debug.assert(std.mem.eql(u8, text, "2020-2-29 23:59:59.0 UTC"));
 }
