@@ -6,6 +6,7 @@ const objects = @import("telegram/objects.zig");
 const methods = @import("telegram/methods.zig");
 
 const OpenRouter = @import("openrouter/openrouter.zig").OpenRouter;
+const DateTime = @import("datetime/datetime.zig").DateTime;
 
 pub fn main() !void {
     // make allocator.
@@ -40,14 +41,23 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
     };
 
     // log the message.
-    if (message.chat.username) |username| {
-        std.log.info("I got a text message from {s}: {s}", .{ username, text });
+    if (message.from) |from| {
+        std.log.info("I got a text message from {s}: {s}", .{
+            from.username orelse from.first_name,
+            text,
+        });
     } else {
         std.log.info("I got a text message from {d}: {s}", .{ message.chat.id, text });
     }
 
+    // add user info to the text.
+    const name = if (message.from) |from| from.username orelse from.first_name else null;
+    const time = DateTime.fromUnixTimestamp(message.date).toText(bot.allocator) catch unreachable;
+    const text_included_info = addUserInfo(bot.allocator, name, time, text) catch unreachable;
+    defer bot.allocator.free(text_included_info);
+
     // get reply from openrouter.
-    const reply_text = getReply(bot.allocator, text) catch |err| {
+    const reply_text = getReply(bot.allocator, text_included_info) catch |err| {
         std.log.warn("failed to get reply: {}", .{err});
         // sendMessage(bot, message.chat.id, "I can't reply to your message");
         return;
@@ -126,4 +136,17 @@ fn getReply(
     const owned_text = try allocator.dupe(u8, reply_text);
 
     return owned_text;
+}
+
+fn addUserInfo(
+    allocator: std.mem.Allocator,
+    optional_name: ?[]const u8,
+    time: []const u8,
+    text: []const u8,
+) ![]const u8 {
+    if (optional_name) |name| {
+        return std.fmt.allocPrint(allocator, "[%% Name: {s} | Time: {s} %%] {s}", .{ name, time, text });
+    } else {
+        return std.fmt.allocPrint(allocator, "[%% Time: {s} %%] {s}", .{ time, text });
+    }
 }
