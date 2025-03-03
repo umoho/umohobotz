@@ -78,7 +78,9 @@ pub const Client = struct {
         // build the body.
         var body_buf = std.ArrayList(u8).init(self.base.allocator);
         defer body_buf.deinit();
-        try std.json.stringify(method, .{}, body_buf.writer());
+        try std.json.stringify(method, .{
+            .emit_null_optional_fields = false,
+        }, body_buf.writer());
         const body = body_buf.items;
 
         // send the request.

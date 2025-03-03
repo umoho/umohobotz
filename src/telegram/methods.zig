@@ -2,6 +2,8 @@
 // TODO: let buildQueryString ignore null fields.
 // TODO: find out a good way to get the method name. (and return type)
 
+const objects = @import("objects.zig");
+
 pub const Name = union(enum) {
     /// See https://core.telegram.org/bots/api#getupdates.
     getUpdates,
@@ -34,7 +36,7 @@ pub const SendMessage = struct {
     text: []const u8,
     // parse_mode: ?[]const u8 = null,
     // entities: ?[]void = null, // TODO: actual type 'MessageEntity'.
-    // link_preview_options: ?void = null, // TODO: actual type 'LinkPreviewOptions'.
+    link_preview_options: ?objects.LinkPreviewOptions = null,
     // disable_notification: ?bool = null,
     // protect_connect: ?bool = null,
     // allow_paid_broadcast: ?bool = null,

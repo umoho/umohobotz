@@ -82,6 +82,7 @@ fn sendMessage(bot: *Bot, chat_id: i64, text: []const u8) void {
     if (bot.client.invokePost(methods.SendMessage{
         .chat_id = chat_id,
         .text = text,
+        .link_preview_options = .{ .is_disabled = true },
     })) |response| {
         defer response.deinit();
         std.log.info("response: {s}", .{response.base.buf});
