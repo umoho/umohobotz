@@ -25,7 +25,16 @@ pub fn main() !void {
     var bot = try Bot.init(allocator, bot_token);
     defer bot.deinit();
 
-    try bot.getUpdatesLoop(handleUpdate);
+    while (true) {
+        bot.getUpdatesLoop(handleUpdate) catch |err| {
+            if (err == error.ConnectionResetByPeer) {
+                std.log.warn("connection reset by peer", .{});
+                // recover from connection reset by peer.
+                continue;
+            }
+            return err;
+        };
+    }
 }
 
 fn handleUpdate(bot: *Bot, update: objects.Update) void {
