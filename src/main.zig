@@ -53,6 +53,7 @@ fn handleUpdate(bot: *Bot, update: objects.Update) void {
     // add user info to the text.
     const name = if (message.from) |from| from.username orelse from.first_name else null;
     const time = DateTime.fromUnixTimestamp(message.date).toText(bot.allocator) catch unreachable;
+    defer bot.allocator.free(time);
     const text_included_info = addUserInfo(bot.allocator, name, time, text) catch unreachable;
     defer bot.allocator.free(text_included_info);
 
